@@ -22,7 +22,7 @@ KELAS C – 202210370311257 – Defan Deo Vannes
 [Desain UI/UX RentalPS](https://www.figma.com/design/VxvsbIrCOl7PYfJCIt1FmM/Untitled?t=Oc47QmAIF01vON1h-1)
 
 ## Worksheet
-<!-- Tambahkan link worksheet di sini -->
+[worksheet](https://drive.google.com/file/d/1ZWQyxBPtaNEnYwz4uJurQcBgnvwQjpeb/view?usp=sharing)
 
 ## Low Fidelity Prototype
 <!-- Tambahkan dokumentasi low fidelity prototype di sini -->
