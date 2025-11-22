@@ -30,13 +30,23 @@ KELAS C – 202210370311257 – Defan Deo Vannes
 
 ## Pembagian Tugas
 
-| Aplikasi RentalPS | | | |
-|-------------------|---------|---------|---------|
-| **Agile Organization** | **Fitur A** | **Fitur B** | **Fitur C** |
-| **Product Owner** | Nico Fantri Mayharis | Muhammad Firdausi Nazula | Farelle Roderick Putra |
-| **Scrum Master** | Muhammad Firdausi Nazula | Farelle Roderick Putra | Farhan Arsyi Ghaisani |
-| **Tim Pengembangan** | Farelle Roderick Putra<br>Farhan Arsyi Ghaisani<br>Defan Deo Vannes | Farhan Arsyi Ghaisani<br>Defan Deo Vannes<br>Nico Fantri Mayharis | Defan Deo Vannes<br>Nico Fantri Mayharis<br>Muhammad Firdausi Nazula |
+| Aplikasi RentalPS | | | | | |
+|-------------------|---------|---------|---------|---------|---------|
+| **Agile Organization** | **Sprint 1** | **Sprint 2** | **Sprint 3** | **Sprint 4** | **Sprint 5** |
+| **Product Owner** | Nico Fantri Mayharis | Muhammad Firdausi Nazula | Farelle Roderick Putra | Farhan Arsyi Ghaisani | Defan Deo Vannes |
+| **Scrum Master** | Muhammad Firdausi Nazula | Farelle Roderick Putra | Farhan Arsyi Ghaisani | Defan Deo Vannes | Nico Fantri Mayharis |
+| **Tim Pengembangan** | Farelle Roderick Putra<br>Farhan Arsyi Ghaisani<br>Defan Deo Vannes | Farhan Arsyi Ghaisani<br>Defan Deo Vannes<br>Nico Fantri Mayharis | Defan Deo Vannes<br>Nico Fantri Mayharis<br>Muhammad Firdausi Nazula | Nico Fantri Mayharis<br>Muhammad Firdausi Nazula<br>Farelle Roderick Putra | Muhammad Firdausi Nazula<br>Farelle Roderick Putra<br>Farhan Arsyi Ghaisani |
 
----
+### Detail Pembagian Fitur per Anggota
+
+| Anggota | Fitur yang Dikerjakan |
+|---------|----------------------|
+| **Nico Fantri Mayharis** | 1. Home<br>2. Dashboard Admin<br>3. pencarian <br>4. riwayat pesanan <br>5. notifikasi admin   |
+| **Muhammad Firdausi Nazula** | 1. Login<br>2. Notifikasi User<br>3. kelolah unit <br>4. grafik pendapatan <br> 5. export data  |
+| **Farelle Roderick Putra** | 1. Reset Password <br>2. notifikasi  <br>3. detail pesanan  |
+| **Farhan Arsyi Ghaisani** | 1. Profil User<br>2. Katalog Filter<br>3. Keranjang<br>4. Booking Lengkap |
+| **Defan Deo Vannes** | 1. Register<br>2. Favorit<br>3. ringkasan Pesanan pembayaran <br>4. sucess pembayaran <br> 5.laporan pendapatan   |
+
+
 
 **Catatan:** Repository ini merupakan bagian dari tugas mata kuliah dan akan dipantau melalui Insights->Contributors untuk evaluasi kontribusi setiap anggota kelompok.
