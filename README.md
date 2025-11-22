@@ -25,7 +25,8 @@ KELAS C – 202210370311257 – Defan Deo Vannes
 [worksheet](https://drive.google.com/file/d/1ZWQyxBPtaNEnYwz4uJurQcBgnvwQjpeb/view?usp=sharing)
 
 ## Low Fidelity Prototype
-<!-- Tambahkan dokumentasi low fidelity prototype di sini -->
+[Low Fidelity Prototype](https://drive.google.com/file/d/1ZWQyxBPtaNEnYwz4uJurQcBgnvwQjpeb/view?usp=sharing)
+
 
 ## Pembagian Tugas
 
