@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app/modules/home/views/home_view.dart';
+import 'app/modules/home/views/profile_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
