@@ -152,10 +152,7 @@ class _HomeContentState extends State<HomeContent> {
         children: [
           Text(
             'Hello,',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           SizedBox(height: 2),
           Text(
@@ -198,10 +195,7 @@ class _HomeContentState extends State<HomeContent> {
         gradient: const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
-          ],
+          colors: [AppColors.primary, AppColors.primaryDark],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -224,10 +218,7 @@ class _HomeContentState extends State<HomeContent> {
                 const SizedBox(height: 4),
                 Text(
                   banner.subtitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -331,10 +322,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
             child: const Text(
               'See All',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
           ),
         ],
@@ -369,10 +357,7 @@ class _HomeContentState extends State<HomeContent> {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primary,
-                  AppColors.primaryDark,
-                ],
+                colors: [AppColors.primary, AppColors.primaryDark],
               ),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -502,7 +487,9 @@ class _HomeContentState extends State<HomeContent> {
                         ],
                       ),
                       child: Icon(
-                        _favorites[index] ? Icons.favorite : Icons.favorite_border,
+                        _favorites[index]
+                            ? Icons.favorite
+                            : Icons.favorite_border,
                         color: _favorites[index] ? Colors.red : Colors.grey,
                         size: 18,
                       ),
@@ -575,10 +562,7 @@ class CategoryData {
   final String name;
   final String image;
 
-  CategoryData({
-    required this.name,
-    required this.image,
-  });
+  CategoryData({required this.name, required this.image});
 }
 
 class ProductData {
@@ -586,9 +570,5 @@ class ProductData {
   final String price;
   final String image;
 
-  ProductData({
-    required this.name,
-    required this.price,
-    required this.image,
-  });
+  ProductData({required this.name, required this.price, required this.image});
 }
