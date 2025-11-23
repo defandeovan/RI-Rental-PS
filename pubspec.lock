@@ -272,8 +272,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
-<<<<<<< HEAD
-=======
   mime:
     dependency: transitive
     description:
@@ -282,7 +280,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
->>>>>>> develop
   path:
     dependency: transitive
     description:
@@ -352,8 +349,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.7"
-<<<<<<< HEAD
-=======
   typed_data:
     dependency: transitive
     description:
@@ -362,7 +357,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
->>>>>>> develop
   vector_math:
     dependency: transitive
     description:
