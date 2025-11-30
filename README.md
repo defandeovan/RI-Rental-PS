@@ -22,10 +22,10 @@ KELAS C – 202210370311257 – Defan Deo Vannes
 [Desain UI/UX RentalPS](https://www.figma.com/design/VxvsbIrCOl7PYfJCIt1FmM/Untitled?t=Oc47QmAIF01vON1h-1)
 
 ## Worksheet
-[worksheet](https://drive.google.com/file/d/1ZWQyxBPtaNEnYwz4uJurQcBgnvwQjpeb/view?usp=sharing)
+[worksheet](https://drive.google.com/file/d/1AT34uT51snV9lIuvUNtABhiE4R_ARjOj/view?usp=sharing)
 
 ## Low Fidelity Prototype
-[Low Fidelity Prototype](https://drive.google.com/file/d/1ZWQyxBPtaNEnYwz4uJurQcBgnvwQjpeb/view?usp=sharing)
+[Low Fidelity Prototype](https://drive.google.com/file/d/1AT34uT51snV9lIuvUNtABhiE4R_ARjOj/view?usp=sharing)
 
 
 ## Pembagian Tugas
