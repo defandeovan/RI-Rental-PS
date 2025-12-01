@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../theme/app_colors.dart';
 import 'home_content.dart';
 import 'profile_view.dart';
@@ -59,7 +58,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
         return _buildPlaceholderPage('Promo', Icons.local_offer);
       case 3:
         return const ProfileView();
-        ('Profile', Icons.person);
       default:
         return const HomeContent();
     }
@@ -110,7 +108,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-            (index) => _buildNavItem(index, _navItems[index]),
+                (index) => _buildNavItem(index, _navItems[index]),
           ),
         ),
       ),

@@ -470,7 +470,7 @@ class _BookingViewState extends State<BookingView> {
                       fontWeight: FontWeight.w600,
                       color: isSelected ? Colors.white : AppColors.textPrimary,
                     ),
-                  ),
+                  ],
                 ),
               );
             }).toList(),
