@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../theme/app_colors.dart';
 import 'home_content.dart';
 import 'profile_view.dart';
 import 'cart_view.dart';
+import '../models/RentalDuration.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -58,8 +58,17 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       case 2:
         return _buildPlaceholderPage('Promo', Icons.local_offer);
       case 3:
-        return const ProfileView();
-        ('Profile', Icons.person);
+    
+
+ return ProfileView( // HILANGKAN const
+        productName: 'PlayStation 5',
+        productImage: 'assets/images/ps5.png',
+        rentalDuration: RentalDuration(
+          days: 1,
+          label: 'Daily',
+          price: 200000,
+        ),
+      );
       default:
         return const HomeContent();
     }
@@ -110,7 +119,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-            (index) => _buildNavItem(index, _navItems[index]),
+                (index) => _buildNavItem(index, _navItems[index]),
           ),
         ),
       ),
