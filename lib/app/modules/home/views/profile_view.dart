@@ -4,11 +4,17 @@ import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
 class ProfileView extends StatefulWidget {
+import '../theme/app_colors.dart'; // Import model yang sama
+import 'PaymentView.dart';
+import '../models/RentalDuration.dart';
+
+class BookingView extends StatefulWidget {
   final String productName;
   final String productImage;
   final RentalDuration rentalDuration;
 
   const ProfileView({
+  const BookingView({
     Key? key,
     required this.productName,
     required this.productImage,
@@ -20,6 +26,10 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  State<BookingView> createState() => _BookingViewState();
+}
+
+class _BookingViewState extends State<BookingView> {
   DateTime _selectedDate = DateTime.now();
   String _selectedPackage = 'hourly';
   String _selectedTime = '08:00';
@@ -165,6 +175,7 @@ class _ProfileViewState extends State<ProfileView> {
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -204,6 +215,7 @@ class _ProfileViewState extends State<ProfileView> {
                     child: Text(
                       day,
                       style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -223,6 +235,8 @@ class _ProfileViewState extends State<ProfileView> {
               children: List.generate(7, (dayIndex) {
                 final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
 
+                final dayNumber =
+                    weekIndex * 7 + dayIndex - startingWeekday + 1;
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
@@ -238,6 +252,12 @@ class _ProfileViewState extends State<ProfileView> {
                     date.year == _selectedDate.year;
 
                 final isToday = date.day == now.day &&
+                final isSelected =
+                    date.day == _selectedDate.day &&
+                    date.month == _selectedDate.month &&
+                    date.year == _selectedDate.year;
+                final isToday =
+                    date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -256,6 +276,8 @@ class _ProfileViewState extends State<ProfileView> {
                           : isToday
                               ? AppColors.primary.withOpacity(0.1)
                               : Colors.transparent,
+                          ? AppColors.primary.withOpacity(0.1)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -269,6 +291,14 @@ class _ProfileViewState extends State<ProfileView> {
                               : isToday
                                   ? AppColors.primary
                                   : AppColors.textPrimary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? Colors.white
+                              : isToday
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -305,6 +335,7 @@ class _ProfileViewState extends State<ProfileView> {
             color: color,
             shape: BoxShape.circle,
           ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
@@ -313,6 +344,7 @@ class _ProfileViewState extends State<ProfileView> {
             fontSize: 11,
             color: AppColors.textSecondary,
           ),
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -462,6 +494,9 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary : AppColors.cardBackground,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected ? AppColors.primary : AppColors.divider,
@@ -565,6 +600,7 @@ class _ProfileViewState extends State<ProfileView> {
         border: const Border(
           top: BorderSide(color: AppColors.divider, width: 1),
         ),
+        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -633,4 +669,5 @@ class PackageOption {
     required this.duration,
     required this.icon,
   });
+}
 }

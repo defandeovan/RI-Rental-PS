@@ -41,10 +41,10 @@ KELAS C – 202210370311257 – Defan Deo Vannes
 
 | Anggota | Fitur yang Dikerjakan |
 |---------|----------------------|
-| **Nico Fantri Mayharis** | 1. Home<br>2. Dashboard Admin<br>3. pencarian <br>4. riwayat pesanan <br>5. notifikasi admin   |
+| **Nico Fantri Mayharis** | 1. Home <br>2. Dashboard Admin <br>3. pencarian <br>4. OrderHistoryScreen <br>5. Splash_Screen <br>6. vocher promo |
 | **Muhammad Firdausi Nazula** | 1. Login<br>2. Notifikasi User<br>3. kelolah unit <br>4. grafik pendapatan <br> 5. export data  |
-| **Farelle Roderick Putra** | 1. Reset Password <br>2. notifikasi  <br>3. detail pesanan  |
-| **Farhan Arsyi Ghaisani** | 1. Profil User<br>2. Katalog Filter<br>3. Keranjang<br>4. Booking Lengkap |
+| **Farelle Roderick Putra** | 1. Reset Password <br>2. notifikasi admin  <br>3. detail pesanan <br>4. RentalDuration |
+| **Farhan Arsyi Ghaisani** | 1. Profil User<br>2. Katalog <br>3.CatalogDetail <br>4. Booking  |
 | **Defan Deo Vannes** | 1. Register<br>2. Favorit<br>3. ringkasan Pesanan pembayaran <br>4. sucess pembayaran <br> 5.laporan pendapatan   |
 
 
