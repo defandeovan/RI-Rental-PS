@@ -3,17 +3,11 @@ import '../theme/app_colors.dart';
 import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
-class ProfileView extends StatefulWidget {
-import '../theme/app_colors.dart'; // Import model yang sama
-import 'PaymentView.dart';
-import '../models/RentalDuration.dart';
-
 class BookingView extends StatefulWidget {
   final String productName;
   final String productImage;
   final RentalDuration rentalDuration;
 
-  const ProfileView({
   const BookingView({
     Key? key,
     required this.productName,
@@ -22,10 +16,6 @@ class BookingView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ProfileView> createState() => _ProfileViewState();
-}
-
-class _ProfileViewState extends State<ProfileView> {
   State<BookingView> createState() => _BookingViewState();
 }
 
@@ -175,7 +165,6 @@ class _BookingViewState extends State<BookingView> {
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -215,7 +204,6 @@ class _BookingViewState extends State<BookingView> {
                     child: Text(
                       day,
                       style: const TextStyle(
-                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -235,8 +223,6 @@ class _BookingViewState extends State<BookingView> {
               children: List.generate(7, (dayIndex) {
                 final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
 
-                final dayNumber =
-                    weekIndex * 7 + dayIndex - startingWeekday + 1;
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
@@ -252,12 +238,6 @@ class _BookingViewState extends State<BookingView> {
                     date.year == _selectedDate.year;
 
                 final isToday = date.day == now.day &&
-                final isSelected =
-                    date.day == _selectedDate.day &&
-                    date.month == _selectedDate.month &&
-                    date.year == _selectedDate.year;
-                final isToday =
-                    date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -276,8 +256,6 @@ class _BookingViewState extends State<BookingView> {
                           : isToday
                               ? AppColors.primary.withOpacity(0.1)
                               : Colors.transparent,
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -291,14 +269,6 @@ class _BookingViewState extends State<BookingView> {
                               : isToday
                                   ? AppColors.primary
                                   : AppColors.textPrimary,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: isSelected
-                              ? Colors.white
-                              : isToday
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -335,7 +305,6 @@ class _BookingViewState extends State<BookingView> {
             color: color,
             shape: BoxShape.circle,
           ),
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
@@ -344,7 +313,6 @@ class _BookingViewState extends State<BookingView> {
             fontSize: 11,
             color: AppColors.textSecondary,
           ),
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -493,7 +461,6 @@ class _BookingViewState extends State<BookingView> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : AppColors.cardBackground,
                     color: isSelected
                         ? AppColors.primary
                         : AppColors.cardBackground,
@@ -600,7 +567,6 @@ class _BookingViewState extends State<BookingView> {
         border: const Border(
           top: BorderSide(color: AppColors.divider, width: 1),
         ),
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -655,6 +621,7 @@ class _BookingViewState extends State<BookingView> {
   }
 }
 
+// Class PackageOption dipindahkan ke luar state class
 class PackageOption {
   final String id;
   final String name;
@@ -669,5 +636,4 @@ class PackageOption {
     required this.duration,
     required this.icon,
   });
-}
 }
