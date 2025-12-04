@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'DaftarPenyewaanPage.dart';
+import 'DaftarUnitPSPage.dart';
 import 'notifikasi_admin.dart';
 
 class DashboardAdminPage extends StatefulWidget {
@@ -145,15 +147,46 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildDrawerItem(Icons.home, 'Dashboard Utama', true),
-                _buildDrawerItem(Icons.videogame_asset, 'Daftar Unit PS', false),
-                _buildDrawerItem(Icons.shopping_cart, 'Daftar Penyewaan', false),
-                _buildDrawerItem(Icons.people, 'Daftar Pelanggan', false),
-                _buildDrawerItem(Icons.description, 'Laporan', false),
-                _buildDrawerItem(Icons.bar_chart, 'Laporan Transaksi', false),
-                _buildDrawerItem(Icons.settings, 'Pengaturan', false),
+                _buildDrawerItem(Icons.home, 'Dashboard Utama', true, () {}),
+                _buildDrawerItem(Icons.videogame_asset, 'Daftar Unit PS', false, () {
+                  Navigator.pop(context); // Close drawer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DaftarUnitPSPage(),
+                    ),
+                  );
+                }),
+                _buildDrawerItem(Icons.shopping_cart, 'Daftar Penyewaan', false, () {
+                  Navigator.pop(context); // Close drawer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DaftarPenyewaanPage(),
+                    ),
+                  );
+                }),
+                _buildDrawerItem(Icons.people, 'Daftar Pelanggan', false, () {
+                  Navigator.pop(context);
+                  _showComingSoonDialog('Daftar Pelanggan');
+                }),
+                _buildDrawerItem(Icons.description, 'Laporan', false, () {
+                  Navigator.pop(context);
+                  _showComingSoonDialog('Laporan');
+                }),
+                _buildDrawerItem(Icons.bar_chart, 'Laporan Transaksi', false, () {
+                  Navigator.pop(context);
+                  _showComingSoonDialog('Laporan Transaksi');
+                }),
+                _buildDrawerItem(Icons.settings, 'Pengaturan', false, () {
+                  Navigator.pop(context);
+                  _showComingSoonDialog('Pengaturan');
+                }),
                 const Divider(height: 30),
-                _buildDrawerItem(Icons.logout, 'Logout', false, isLogout: true),
+                _buildDrawerItem(Icons.logout, 'Logout', false, () {
+                  Navigator.pop(context);
+                  _showLogoutDialog();
+                }, isLogout: true),
               ],
             ),
           ),
@@ -162,7 +195,7 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, bool isActive, {bool isLogout = false}) {
+  Widget _buildDrawerItem(IconData icon, String title, bool isActive, VoidCallback onTap, {bool isLogout = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -187,11 +220,26 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
             letterSpacing: 0.2,
           ),
         ),
-        onTap: () {
-          if (isLogout) {
-            _showLogoutDialog();
-          }
-        },
+        onTap: onTap,
+      ),
+    );
+  }
+
+  void _showComingSoonDialog(String feature) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Text(feature),
+        content: Text('Fitur $feature akan segera tersedia.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }
