@@ -213,7 +213,10 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.success,
                   borderRadius: BorderRadius.circular(8),
@@ -228,11 +231,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    Icon(
-                      Icons.check_circle,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+                    Icon(Icons.check_circle, size: 16, color: Colors.white),
                     SizedBox(width: 6),
                     Text(
                       'Tersedia',
@@ -390,7 +389,9 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: game.isAvailable ? AppColors.textPrimary : AppColors.textSecondary,
+              color: game.isAvailable
+                  ? AppColors.textPrimary
+                  : AppColors.textSecondary,
             ),
           ),
         ),
@@ -437,7 +438,9 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.05) : AppColors.cardBackground,
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.05)
+              : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.divider,
@@ -445,7 +448,9 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.shadowLight,
+              color: isSelected
+                  ? AppColors.primary.withOpacity(0.1)
+                  : AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -467,12 +472,8 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
               ),
               child: isSelected
                   ? const Center(
-                child: Icon(
-                  Icons.circle,
-                  size: 8,
-                  color: Colors.white,
-                ),
-              )
+                      child: Icon(Icons.circle, size: 8, color: Colors.white),
+                    )
                   : null,
             ),
             const SizedBox(width: 14),
@@ -512,10 +513,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFF5F3FF),
-            Color(0xFFE8E4FF),
-          ],
+          colors: [Color(0xFFF5F3FF), Color(0xFFE8E4FF)],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
@@ -534,10 +532,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
             children: [
               const Text(
                 'Harga Sewa',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 _formatCurrency(selectedPrice),
@@ -555,10 +550,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
             children: [
               const Text(
                 'Pajak (10%)',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 _formatCurrency(tax),
@@ -604,9 +596,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: Border(
-          top: BorderSide(color: AppColors.divider, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -660,8 +650,5 @@ class GameItem {
   final String name;
   final bool isAvailable;
 
-  GameItem({
-    required this.name,
-    required this.isAvailable,
-  });
+  GameItem({required this.name, required this.isAvailable});
 }
