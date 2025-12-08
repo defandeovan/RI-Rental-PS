@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart'; // Import model yang sama
-import 'PaymentView.dart';
-import '../models/RentalDuration.dart';
+import '../theme/app_colors.dart';
 
 class BookingView extends StatefulWidget {
   final String productName;
   final String productImage;
-  final RentalDuration rentalDuration;
 
   const BookingView({
     Key? key,
     required this.productName,
     required this.productImage,
-    required this.rentalDuration,
   }) : super(key: key);
 
   @override
@@ -129,6 +125,8 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ================== DATE PICKER ==================
+
   Widget _buildDatePicker() {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -161,7 +159,10 @@ class _BookingViewState extends State<BookingView> {
               ),
               Text(
                 '${_selectedDate.month}/${_selectedDate.year}',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -187,20 +188,24 @@ class _BookingViewState extends State<BookingView> {
       0,
     );
     final daysInMonth = lastDayOfMonth.day;
-    final startingWeekday = firstDayOfMonth.weekday % 7;
+    final startingWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
+
+    const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+    final weekCount = ((daysInMonth + startingWeekday + 6) ~/ 7);
 
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+          children: weekDays
               .map(
                 (day) => SizedBox(
                   width: 35,
                   child: Center(
                     child: Text(
                       day,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -212,7 +217,7 @@ class _BookingViewState extends State<BookingView> {
               .toList(),
         ),
         const SizedBox(height: 8),
-        ...List.generate((daysInMonth + startingWeekday) ~/ 7 + 1, (weekIndex) {
+        ...List.generate(weekCount, (weekIndex) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
@@ -220,6 +225,7 @@ class _BookingViewState extends State<BookingView> {
               children: List.generate(7, (dayIndex) {
                 final dayNumber =
                     weekIndex * 7 + dayIndex - startingWeekday + 1;
+
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
@@ -229,10 +235,12 @@ class _BookingViewState extends State<BookingView> {
                   _selectedDate.month,
                   dayNumber,
                 );
+
                 final isSelected =
                     date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
+
                 final isToday =
                     date.day == now.day &&
                     date.month == now.month &&
@@ -305,11 +313,13 @@ class _BookingViewState extends State<BookingView> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
   }
+
+  // ================== PACKAGE SELECTION ==================
 
   Widget _buildPackageSelection() {
     return Padding(
@@ -422,6 +432,8 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ================== TIME SELECTION ==================
+
   Widget _buildTimeSelection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -479,6 +491,8 @@ class _BookingViewState extends State<BookingView> {
       ),
     );
   }
+
+  // ================== DURATION (HOURLY) ==================
 
   Widget _buildDurationSelection() {
     return Padding(
@@ -552,12 +566,16 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ================== BOTTOM BUTTON ==================
+
   Widget _buildBottomButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+        border: const Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -572,20 +590,10 @@ class _BookingViewState extends State<BookingView> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentView(
-                    productName: widget.productName,
-                    productImage: widget.productImage,
-                    rentalDuration: widget.rentalDuration,
-                    selectedDate: _selectedDate,
-                    selectedTime: _selectedTime,
-                    packageType: _selectedPackage,
-                    hourlyDuration: _hourlyDuration,
-                    totalAmount: _calculateTotal(),
-                  ),
-                ),
+              // TODO: aksi ketika booking dikonfirmasi (tanpa halaman payment)
+              // contoh simple:
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Booking dikonfirmasi')),
               );
             },
             style: ElevatedButton.styleFrom(
