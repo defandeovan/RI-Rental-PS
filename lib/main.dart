@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'app/modules/home/views/reset_password_screen.dart';
+import 'package:flutter/services.dart';
+import 'app/modules/home/views/home_view.dart';
+import 'app/modules/home/views/profile_view.dart';
+import 'app/modules/home/views/cart_view.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await SupabaseService.initialize();
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const MyApp());
 }
 
@@ -11,16 +23,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: "Reset Password",
+    return MaterialApp(
+      title: 'Sewa PS',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/reset',
-      getPages: [
-        GetPage(
-          name: '/reset',
-          page: () => const ResetPasswordScreen(),
-        ),
-      ],
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        primaryColor: const Color(0xFF6B4C7D),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        fontFamily: 'Roboto',
+        useMaterial3: true,
+      ),
+      home: const SplashScreen(),
     );
   }
 }
