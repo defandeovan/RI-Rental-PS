@@ -3,7 +3,7 @@ import '../theme/app_colors.dart';
 import 'search_view.dart';
 
 class HomeContent extends StatefulWidget {
-  const HomeContent({Key? key}) : super(key: key);
+  const HomeContent({super.key});
 
   @override
   State<HomeContent> createState() => _HomeContentState();

@@ -3,73 +3,8 @@ import '../theme/app_colors.dart';
 import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
-class BookingView extends StatefulWidget {
-  final String productName;
-  final String productImage;
-  final RentalDuration rentalDuration;
-
-  const BookingView({
-    Key? key,
-    required this.productName,
-    required this.productImage,
-    required this.rentalDuration,
-  }) : super(key: key);
-
-  @override
-  State<BookingView> createState() => _BookingViewState();
-}
-
-class _BookingViewState extends State<BookingView> {
-  DateTime _selectedDate = DateTime.now();
-  String _selectedPackage = 'hourly';
-  String _selectedTime = '08:00';
-  int _hourlyDuration = 3;
-
-  final List<PackageOption> _packages = [
-    PackageOption(
-      id: 'hourly',
-      name: 'Hourly Package',
-      price: 10000,
-      duration: 'Per Hour',
-      icon: Icons.access_time,
-    ),
-    PackageOption(
-      id: 'daily',
-      name: 'Daily Package',
-      price: 200000,
-      duration: 'Per Day',
-      icon: Icons.calendar_today,
-    ),
-  ];
-
-  final List<String> _timeSlots = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '20:00',
-    '21:00',
-    '22:00',
-  ];
-
-  String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
-  }
-
-  int _calculateTotal() {
-    if (_selectedPackage == 'hourly') {
-      return 10000 * _hourlyDuration;
-    } else {
-      return 200000;
-    }
-  }
+class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
