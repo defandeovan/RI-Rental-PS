@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../theme/app_colors.dart';
+import 'FavoriteView.dart';
+import 'VoucherView.dart';
 import 'home_content.dart';
 import 'profile_view.dart';
+
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -53,40 +55,14 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       case 0:
         return const HomeContent();
       case 1:
-        return _buildPlaceholderPage('Favorite', Icons.favorite);
+        return const FavoriteView();
       case 2:
-        return _buildPlaceholderPage('Promo', Icons.local_offer);
+        return const VoucherView();
       case 3:
         return const ProfileView();
-        ('Profile', Icons.person);
       default:
         return const HomeContent();
     }
-  }
-
-  Widget _buildPlaceholderPage(String title, IconData icon) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 80, color: AppColors.primary.withOpacity(0.3)),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming Soon',
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildBottomNav() {
@@ -109,7 +85,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-            (index) => _buildNavItem(index, _navItems[index]),
+                (index) => _buildNavItem(index, _navItems[index]),
           ),
         ),
       ),

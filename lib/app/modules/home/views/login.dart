@@ -14,9 +14,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  final _supabaseService = SupabaseService.instance;
   bool _isLoading = false;
 
   final _supabaseService = SupabaseService.instance;
@@ -537,6 +542,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                         const SizedBox(height: 20),
                       ],
                     ),

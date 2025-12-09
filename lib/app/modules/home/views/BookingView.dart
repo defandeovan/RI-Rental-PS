@@ -1,10 +1,75 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_colors.dart'; // Import model yang sama
 import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
-class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+class BookingView extends StatefulWidget {
+  final String productName;
+  final String productImage;
+  final RentalDuration rentalDuration;
+
+  const BookingView({
+    Key? key,
+    required this.productName,
+    required this.productImage,
+    required this.rentalDuration,
+  }) : super(key: key);
+
+  @override
+  State<BookingView> createState() => _BookingViewState();
+}
+
+class _BookingViewState extends State<BookingView> {
+  DateTime _selectedDate = DateTime.now();
+  String _selectedPackage = 'hourly';
+  String _selectedTime = '08:00';
+  int _hourlyDuration = 3;
+
+  final List<PackageOption> _packages = [
+    PackageOption(
+      id: 'hourly',
+      name: 'Hourly Package',
+      price: 10000,
+      duration: 'Per Hour',
+      icon: Icons.access_time,
+    ),
+    PackageOption(
+      id: 'daily',
+      name: 'Daily Package',
+      price: 200000,
+      duration: 'Per Day',
+      icon: Icons.calendar_today,
+    ),
+  ];
+
+  final List<String> _timeSlots = [
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+    '20:00',
+    '21:00',
+    '22:00',
+  ];
+
+  String _formatCurrency(int amount) {
+    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  }
+
+  int _calculateTotal() {
+    if (_selectedPackage == 'hourly') {
+      return 10000 * _hourlyDuration;
+    } else {
+      return 200000;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +161,7 @@ class ProfileView extends StatelessWidget {
               ),
               Text(
                 '${_selectedDate.month}/${_selectedDate.year}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -138,7 +200,7 @@ class ProfileView extends StatelessWidget {
                   child: Center(
                     child: Text(
                       day,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -156,8 +218,8 @@ class ProfileView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(7, (dayIndex) {
-                final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
-
+                final dayNumber =
+                    weekIndex * 7 + dayIndex - startingWeekday + 1;
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
@@ -167,12 +229,12 @@ class ProfileView extends StatelessWidget {
                   _selectedDate.month,
                   dayNumber,
                 );
-
-                final isSelected = date.day == _selectedDate.day &&
+                final isSelected =
+                    date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
-
-                final isToday = date.day == now.day &&
+                final isToday =
+                    date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -189,8 +251,8 @@ class ProfileView extends StatelessWidget {
                       color: isSelected
                           ? AppColors.primary
                           : isToday
-                              ? AppColors.primary.withOpacity(0.1)
-                              : Colors.transparent,
+                          ? AppColors.primary.withOpacity(0.1)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -198,12 +260,14 @@ class ProfileView extends StatelessWidget {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: isSelected
                               ? Colors.white
                               : isToday
-                                  ? AppColors.primary
-                                  : AppColors.textPrimary,
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -236,18 +300,12 @@ class ProfileView extends StatelessWidget {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -499,9 +557,7 @@ class ProfileView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: const Border(
-          top: BorderSide(color: AppColors.divider, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -556,7 +612,6 @@ class ProfileView extends StatelessWidget {
   }
 }
 
-// Class PackageOption dipindahkan ke luar state class
 class PackageOption {
   final String id;
   final String name;
