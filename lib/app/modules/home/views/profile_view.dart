@@ -163,6 +163,10 @@ class _BookingViewState extends State<BookingView> {
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -205,6 +209,7 @@ class _BookingViewState extends State<BookingView> {
                   child: Center(
                     child: Text(
                       day,
+                      style: const TextStyle(
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -259,8 +264,8 @@ class _BookingViewState extends State<BookingView> {
                       color: isSelected
                           ? AppColors.primary
                           : isToday
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.transparent,
+                              ? AppColors.primary.withOpacity(0.1)
+                              : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -268,14 +273,12 @@ class _BookingViewState extends State<BookingView> {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? Colors.white
                               : isToday
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -308,7 +311,10 @@ class _BookingViewState extends State<BookingView> {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
         ),
         const SizedBox(width: 6),
         Text(
@@ -576,6 +582,9 @@ class _BookingViewState extends State<BookingView> {
         border: const Border(
           top: BorderSide(color: AppColors.divider, width: 1),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -620,6 +629,7 @@ class _BookingViewState extends State<BookingView> {
   }
 }
 
+// Class PackageOption dipindahkan ke luar state class
 class PackageOption {
   final String id;
   final String name;
