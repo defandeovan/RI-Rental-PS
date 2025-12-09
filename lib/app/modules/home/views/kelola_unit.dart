@@ -393,7 +393,8 @@ class _KelolaUnitPageState extends State<KelolaUnitPage> {
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama Unit',
+                  labelText: 'Nama Unit UP',
+                  //UP nanti di hapus
                   border: OutlineInputBorder(),
                 ),
               ),
