@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'CatalogDetailView.dart';
 
+
 class CatalogView extends StatefulWidget {
   final String? category;
 
@@ -103,7 +104,9 @@ class _CatalogViewState extends State<CatalogView> {
           const SizedBox(height: 16),
           _buildProductCount(),
           const SizedBox(height: 16),
-          Expanded(child: _buildProductGrid()),
+          Expanded(
+            child: _buildProductGrid(),
+          ),
         ],
       ),
     );
@@ -145,7 +148,11 @@ class _CatalogViewState extends State<CatalogView> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.tune_rounded, size: 18, color: AppColors.textPrimary),
+              Icon(
+                Icons.tune_rounded,
+                size: 18,
+                color: AppColors.textPrimary,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Filter',
@@ -167,7 +174,10 @@ class _CatalogViewState extends State<CatalogView> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Text(
         '${_filteredProducts.length} produk ditemukan',
-        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+        style: TextStyle(
+          fontSize: 13,
+          color: AppColors.textSecondary,
+        ),
       ),
     );
   }
@@ -457,9 +467,8 @@ class _CatalogViewState extends State<CatalogView> {
                             filter,
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
+                              fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
                               color: isSelected
                                   ? AppColors.primary
                                   : AppColors.textPrimary,

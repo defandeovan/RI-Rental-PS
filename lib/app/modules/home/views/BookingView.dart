@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart'; // Import model yang sama
+import '../theme/app_colors.dart';// Import model yang sama
 import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
@@ -43,20 +43,8 @@ class _BookingViewState extends State<BookingView> {
   ];
 
   final List<String> _timeSlots = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '20:00',
-    '21:00',
-    '22:00',
+    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
+    '14:00', '15:00', '16:00', '17:00', '18:00', '20:00', '21:00', '22:00',
   ];
 
   String _formatCurrency(int amount) {
@@ -161,7 +149,10 @@ class _BookingViewState extends State<BookingView> {
               ),
               Text(
                 '${_selectedDate.month}/${_selectedDate.year}',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -176,16 +167,8 @@ class _BookingViewState extends State<BookingView> {
 
   Widget _buildCalendar() {
     final now = DateTime.now();
-    final firstDayOfMonth = DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      1,
-    );
-    final lastDayOfMonth = DateTime(
-      _selectedDate.year,
-      _selectedDate.month + 1,
-      0,
-    );
+    final firstDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
+    final lastDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
     final daysInMonth = lastDayOfMonth.day;
     final startingWeekday = firstDayOfMonth.weekday % 7;
 
@@ -194,21 +177,19 @@ class _BookingViewState extends State<BookingView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-              .map(
-                (day) => SizedBox(
-                  width: 35,
-                  child: Center(
-                    child: Text(
-                      day,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
+              .map((day) => SizedBox(
+            width: 35,
+            child: Center(
+              child: Text(
+                day,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
                 ),
-              )
+              ),
+            ),
+          ))
               .toList(),
         ),
         const SizedBox(height: 8),
@@ -218,23 +199,16 @@ class _BookingViewState extends State<BookingView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(7, (dayIndex) {
-                final dayNumber =
-                    weekIndex * 7 + dayIndex - startingWeekday + 1;
+                final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
 
-                final date = DateTime(
-                  _selectedDate.year,
-                  _selectedDate.month,
-                  dayNumber,
-                );
-                final isSelected =
-                    date.day == _selectedDate.day &&
+                final date = DateTime(_selectedDate.year, _selectedDate.month, dayNumber);
+                final isSelected = date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
-                final isToday =
-                    date.day == now.day &&
+                final isToday = date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -260,9 +234,7 @@ class _BookingViewState extends State<BookingView> {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? Colors.white
                               : isToday
@@ -300,12 +272,18 @@ class _BookingViewState extends State<BookingView> {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
         ),
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 11,
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
@@ -347,8 +325,8 @@ class _BookingViewState extends State<BookingView> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                )
+            colors: [AppColors.primary, AppColors.primaryDark],
+          )
               : null,
           color: isSelected ? null : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
@@ -449,14 +427,9 @@ class _BookingViewState extends State<BookingView> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.cardBackground,
+                    color: isSelected ? AppColors.primary : AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected ? AppColors.primary : AppColors.divider,
@@ -525,10 +498,10 @@ class _BookingViewState extends State<BookingView> {
                     IconButton(
                       onPressed: _hourlyDuration > 1
                           ? () {
-                              setState(() {
-                                _hourlyDuration--;
-                              });
-                            }
+                        setState(() {
+                          _hourlyDuration--;
+                        });
+                      }
                           : null,
                       icon: const Icon(Icons.remove_circle_outline),
                       color: AppColors.primary,
@@ -557,7 +530,9 @@ class _BookingViewState extends State<BookingView> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+        border: Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
