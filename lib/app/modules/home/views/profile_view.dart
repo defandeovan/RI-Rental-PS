@@ -1,435 +1,872 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
+import 'OrderHistoryScreen.dart';
+import 'login.dart';
 
-class BookingView extends StatefulWidget {
-  final String productName;
-  final String productImage;
+class ProfileView extends StatefulWidget {
+  const ProfileView({Key? key}) : super(key: key);
 
-  const BookingView({
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  final _supabaseService = SupabaseService.instance;
+  final ImagePicker _picker = ImagePicker();
+
+  bool _isLoading = true;
+
+  File? _newProfileImage;
+  String? _currentImageUrl;
+  String _userName = '';
+  String _userEmail = '';
+  String _userPhone = '';
+  String _userGender = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = _supabaseService.userId;
+      if (userId != null) {
+        final profile = await _supabaseService.getProfile(userId);
+
+        if (profile != null) {
+          setState(() {
+            _userName = profile['name'] ?? '';
+            _userEmail = profile['email'] ?? '';
+            _userPhone = profile['phone'] ?? '';
+            _currentImageUrl = profile['profile_image_url'];
+            _userGender = profile['gender'] ?? '';
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading profile: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Ganti Foto Profil',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildImageSourceOption(
+                      icon: Icons.photo_library,
+                      label: 'Galeri',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final XFile? image = await _picker.pickImage(
+                          source: ImageSource.gallery,
+                          maxWidth: 1024,
+                          maxHeight: 1024,
+                          imageQuality: 85,
+                        );
+                        if (image != null) {
+                          _updateProfileImage(File(image.path));
+                        }
+                      },
+                    ),
+                    _buildImageSourceOption(
+                      icon: Icons.camera_alt,
+                      label: 'Kamera',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final XFile? image = await _picker.pickImage(
+                          source: ImageSource.camera,
+                          maxWidth: 1024,
+                          maxHeight: 1024,
+                          imageQuality: 85,
+                        );
+                        if (image != null) {
+                          _updateProfileImage(File(image.path));
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _updateProfileImage(File imageFile) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+    );
+
+    try {
+      final userId = _supabaseService.userId;
+      if (userId == null) throw Exception('User tidak ditemukan');
+
+      final newImageUrl = await _supabaseService.uploadProfileImage(
+        userId: userId,
+        imageFile: imageFile,
+      );
+
+      if (newImageUrl != null) {
+        await _supabaseService.updateProfile(
+          userId: userId,
+          data: {'profile_image_url': newImageUrl},
+        );
+
+        setState(() {
+          _currentImageUrl = newImageUrl;
+          _newProfileImage = null;
+        });
+
+        Navigator.pop(context); // Close loading dialog
+        _showMessage('Foto profil berhasil diperbarui!');
+      }
+    } catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      _showMessage('Gagal memperbarui foto profil', isError: true);
+    }
+  }
+
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Keluar',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text('Apakah Anda yakin ingin keluar dari akun?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _supabaseService.signOut();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+    }
+  }
+
+  void _navigateToEditProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfileScreen(
+          currentName: _userName,
+          currentPhone: _userPhone,
+          currentGender: _userGender,
+          onSaved: () {
+            _loadProfile();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Profil',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _logout,
+                      icon: const Icon(Icons.logout),
+                      color: AppColors.error,
+                      tooltip: 'Keluar',
+                    ),
+                  ],
+                ),
+              ),
+
+              // Profile Picture & Info
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primary.withOpacity(0.3),
+                              width: 3,
+                            ),
+                          ),
+                          child: ClipOval(
+                            child: _currentImageUrl != null
+                                ? Image.network(
+                              _currentImageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildDefaultAvatar();
+                              },
+                            )
+                                : _buildDefaultAvatar(),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 3),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _userName.isNotEmpty ? _userName : 'User',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _userEmail,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Menu Items
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    _buildMenuItem(
+                      icon: Icons.person_outline,
+                      title: 'Edit Profil',
+                      subtitle: 'Ubah informasi pribadi Anda',
+                      onTap: _navigateToEditProfile,
+                    ),
+                    _buildDivider(),
+                    _buildMenuItem(
+                      icon: Icons.phone_outlined,
+                      title: 'Nomor Telepon',
+                      subtitle: _userPhone.isNotEmpty ? _userPhone : 'Belum diisi',
+                      onTap: _navigateToEditProfile,
+                    ),
+                    _buildDivider(),
+                    _buildMenuItem(
+                      icon: Icons.wc_outlined,
+                      title: 'Jenis Kelamin',
+                      subtitle: _userGender.isNotEmpty ? _userGender : 'Belum diisi',
+                      onTap: _navigateToEditProfile,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Settings Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    _buildMenuItem(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'Riwayat & Status Pesanan',
+                      subtitle: 'Lihat semua pesanan Anda',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const OrderHistoryScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildMenuItem(
+                      icon: Icons.lock_outline,
+                      title: 'Ubah Password',
+                      subtitle: 'Perbarui password Anda',
+                      onTap: () {
+                        // TODO: Navigate to change password
+                        _showMessage('Fitur akan segera hadir', isError: true);
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildMenuItem(
+                      icon: Icons.help_outline,
+                      title: 'Bantuan',
+                      subtitle: 'Pusat bantuan dan FAQ',
+                      onTap: () {
+                        // TODO: Navigate to help
+                        _showMessage('Fitur akan segera hadir', isError: true);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Logout Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: OutlinedButton(
+                  onPressed: _logout,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 54),
+                    side: const BorderSide(color: AppColors.error, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.logout, color: AppColors.error),
+                      SizedBox(width: 8),
+                      Text(
+                        'Keluar dari Akun',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 100), // Space for bottom nav
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      color: AppColors.primary.withOpacity(0.1),
+      child: const Icon(
+        Icons.person,
+        size: 60,
+        color: AppColors.primary,
+      ),
+    );
+  }
+
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 140,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: Colors.white, size: 28),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      leading: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: AppColors.primary, size: 24),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.grey[600],
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Colors.grey[400],
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Divider(
+        height: 1,
+        color: Colors.grey[300],
+      ),
+    );
+  }
+}
+
+// ============================================
+// EDIT PROFILE SCREEN
+// ============================================
+
+class EditProfileScreen extends StatefulWidget {
+  final String currentName;
+  final String currentPhone;
+  final String currentGender;
+  final VoidCallback onSaved;
+
+  const EditProfileScreen({
     Key? key,
-    required this.productName,
-    required this.productImage,
+    required this.currentName,
+    required this.currentPhone,
+    required this.currentGender,
+    required this.onSaved,
   }) : super(key: key);
 
   @override
-  State<BookingView> createState() => _BookingViewState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _BookingViewState extends State<BookingView> {
-  DateTime _selectedDate = DateTime.now();
-  String _selectedPackage = 'hourly';
-  String _selectedTime = '08:00';
-  int _hourlyDuration = 3;
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+  late String _selectedGender;
 
-  final List<PackageOption> _packages = [
-    PackageOption(
-      id: 'hourly',
-      name: 'Hourly Package',
-      price: 10000,
-      duration: 'Per Hour',
-      icon: Icons.access_time,
-    ),
-    PackageOption(
-      id: 'daily',
-      name: 'Daily Package',
-      price: 200000,
-      duration: 'Per Day',
-      icon: Icons.calendar_today,
-    ),
-  ];
+  final _supabaseService = SupabaseService.instance;
+  bool _isSaving = false;
 
-  final List<String> _timeSlots = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '20:00',
-    '21:00',
-    '22:00',
-  ];
-
-  String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.currentName);
+    _phoneController = TextEditingController(text: widget.currentPhone);
+    _selectedGender = widget.currentGender.isNotEmpty
+        ? widget.currentGender
+        : 'Laki-laki';
   }
 
-  int _calculateTotal() {
-    if (_selectedPackage == 'hourly') {
-      return 10000 * _hourlyDuration;
-    } else {
-      return 200000;
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      final userId = _supabaseService.userId;
+      if (userId == null) throw Exception('User tidak ditemukan');
+
+      final success = await _supabaseService.updateProfile(
+        userId: userId,
+        data: {
+          'name': _nameController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'gender': _selectedGender,
+        },
+      );
+
+      if (success) {
+        widget.onSaved();
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profil berhasil diperbarui!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menyimpan: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: AppColors.textPrimary,
         ),
         title: const Text(
-          'Sewa PS',
+          'Edit Profil',
           style: TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
-            color: AppColors.textPrimary,
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share_outlined),
-            color: AppColors.textPrimary,
-          ),
-        ],
+        centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDatePicker(),
-                  const SizedBox(height: 24),
-                  _buildPackageSelection(),
-                  const SizedBox(height: 24),
-                  _buildTimeSelection(),
-                  const SizedBox(height: 24),
-                  if (_selectedPackage == 'hourly') _buildDurationSelection(),
-                  const SizedBox(height: 100),
-                ],
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            // Nama Field
+            const Text(
+              'Nama Lengkap',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-          _buildBottomButton(),
-        ],
-      ),
-    );
-  }
-
-  // ================== DATE PICKER ==================
-
-  Widget _buildDatePicker() {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Pilih Tanggal',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                hintText: 'Masukkan nama lengkap',
+                filled: true,
+                fillColor: Colors.grey[50],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
                 ),
               ),
-              Text(
-                '${_selectedDate.month}/${_selectedDate.year}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildCalendar(),
-          const SizedBox(height: 16),
-          _buildCalendarLegend(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCalendar() {
-    final now = DateTime.now();
-    final firstDayOfMonth = DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      1,
-    );
-    final lastDayOfMonth = DateTime(
-      _selectedDate.year,
-      _selectedDate.month + 1,
-      0,
-    );
-    final daysInMonth = lastDayOfMonth.day;
-    final startingWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
-
-    const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-    final weekCount = ((daysInMonth + startingWeekday + 6) ~/ 7);
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: weekDays
-              .map(
-                (day) => SizedBox(
-                  width: 35,
-                  child: Center(
-                    child: Text(
-                      day,
-                      style: const TextStyle(
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 8),
-        ...List.generate(weekCount, (weekIndex) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(7, (dayIndex) {
-                final dayNumber =
-                    weekIndex * 7 + dayIndex - startingWeekday + 1;
-
-                if (dayNumber < 1 || dayNumber > daysInMonth) {
-                  return const SizedBox(width: 35, height: 35);
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Nama tidak boleh kosong';
                 }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
 
-                final date = DateTime(
-                  _selectedDate.year,
-                  _selectedDate.month,
-                  dayNumber,
-                );
+            // Phone Field
+            const Text(
+              'Nomor Telepon',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: 'Contoh: +62812345678',
+                filled: true,
+                fillColor: Colors.grey[50],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Nomor telepon tidak boleh kosong';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
 
-                final isSelected =
-                    date.day == _selectedDate.day &&
-                    date.month == _selectedDate.month &&
-                    date.year == _selectedDate.year;
+            // Gender Field
+            const Text(
+              'Jenis Kelamin',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildGenderOption('Laki-laki', Icons.male),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildGenderOption('Perempuan', Icons.female),
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
 
-                final isToday =
-                    date.day == now.day &&
-                    date.month == now.month &&
-                    date.year == now.year;
-
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedDate = date;
-                    });
-                  },
-                  child: Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary
-                          : isToday
-                              ? AppColors.primary.withOpacity(0.1)
-                              : Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$dayNumber',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected
-                              ? Colors.white
-                              : isToday
-                                  ? AppColors.primary
-                                  : AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
+            // Save Button
+            SizedBox(
+              height: 54,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _saveProfile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              }),
+                  elevation: 0,
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Text(
+                  'Simpan Perubahan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildCalendarLegend() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLegendItem(AppColors.primary, 'Full'),
-        const SizedBox(width: 16),
-        _buildLegendItem(Colors.orange, 'On Venue'),
-        const SizedBox(width: 16),
-        _buildLegendItem(AppColors.success, 'Booking'),
-      ],
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          ],
         ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-        ),
-      ],
-    );
-  }
-
-  // ================== PACKAGE SELECTION ==================
-
-  Widget _buildPackageSelection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Pilih Paket',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ..._packages.map((package) => _buildPackageCard(package)),
-        ],
       ),
     );
   }
 
-  Widget _buildPackageCard(PackageOption package) {
-    final isSelected = _selectedPackage == package.id;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedPackage = package.id;
-        });
-      },
+  Widget _buildGenderOption(String gender, IconData icon) {
+    final isSelected = _selectedGender == gender;
+    return InkWell(
+      onTap: () => setState(() => _selectedGender = gender),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                )
-              : null,
-          color: isSelected ? null : AppColors.cardBackground,
+          color: isSelected ? AppColors.primary : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.transparent : AppColors.divider,
-            width: 1,
+            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? AppColors.primary.withOpacity(0.3)
-                  : AppColors.shadowLight,
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.2)
-                    : AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                package.icon,
-                color: isSelected ? Colors.white : AppColors.primary,
-                size: 24,
-              ),
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 24,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    package.name,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    package.duration,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isSelected
-                          ? Colors.white.withOpacity(0.8)
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(width: 8),
             Text(
-              _formatCurrency(package.price),
+              gender,
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : AppColors.primary,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.grey[600],
               ),
             ),
           ],
@@ -437,211 +874,4 @@ class _BookingViewState extends State<BookingView> {
       ),
     );
   }
-
-  // ================== TIME SELECTION ==================
-
-  Widget _buildTimeSelection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Pilih Jam',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _timeSlots.map((time) {
-              final isSelected = _selectedTime == time;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedTime = time;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.divider,
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    time,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================== DURATION (HOURLY) ==================
-
-  Widget _buildDurationSelection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Durasi',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.divider, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.shadowLight,
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Jam (Hour): $_hourlyDuration',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: _hourlyDuration > 1
-                          ? () {
-                              setState(() {
-                                _hourlyDuration--;
-                              });
-                            }
-                          : null,
-                      icon: const Icon(Icons.remove_circle_outline),
-                      color: AppColors.primary,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _hourlyDuration++;
-                        });
-                      },
-                      icon: const Icon(Icons.add_circle_outline),
-                      color: AppColors.primary,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================== BOTTOM BUTTON ==================
-
-  Widget _buildBottomButton() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        border: const Border(
-          top: BorderSide(color: AppColors.divider, width: 1),
-        ),
-        border: const Border(
-          top: BorderSide(color: AppColors.divider, width: 1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowMedium,
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              // TODO: aksi ketika booking dikonfirmasi (tanpa halaman payment)
-              // contoh simple:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Booking dikonfirmasi')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'CONFIRM',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Class PackageOption dipindahkan ke luar state class
-class PackageOption {
-  final String id;
-  final String name;
-  final int price;
-  final String duration;
-  final IconData icon;
-
-  PackageOption({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.duration,
-    required this.icon,
-  });
 }
