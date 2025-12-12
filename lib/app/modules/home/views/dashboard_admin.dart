@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'DaftarPenyewaanPage.dart';
 import 'DaftarUnitPSPage.dart';
 import 'notifikasi_admin.dart';
+import 'kelola_unit.dart';
+import 'laporan_transaksi.dart';
 
 class DashboardAdminPage extends StatefulWidget {
   const DashboardAdminPage({Key? key}) : super(key: key);
@@ -157,6 +159,15 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
                     ),
                   );
                 }),
+                _buildDrawerItem(Icons.edit, 'Kelola Unit', false, () {
+                  Navigator.pop(context); // Close drawer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const KelolaUnitPage(),
+                    ),
+                  );
+                }),
                 _buildDrawerItem(Icons.shopping_cart, 'Daftar Penyewaan', false, () {
                   Navigator.pop(context); // Close drawer
                   Navigator.push(
@@ -175,8 +186,13 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
                   _showComingSoonDialog('Laporan');
                 }),
                 _buildDrawerItem(Icons.bar_chart, 'Laporan Transaksi', false, () {
-                  Navigator.pop(context);
-                  _showComingSoonDialog('Laporan Transaksi');
+                  Navigator.pop(context); // Close drawer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LaporanTransaksiPage(),
+                    ),
+                  );
                 }),
                 _buildDrawerItem(Icons.settings, 'Pengaturan', false, () {
                   Navigator.pop(context);

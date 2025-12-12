@@ -4,7 +4,7 @@ import 'app/modules/home/services/supabase_service.dart';
 import 'app/modules/home/views/Splash_Screen.dart';
 import 'app/modules/home/views/home_view.dart';
 import 'app/modules/home/views/profile_view.dart';
-import 'app/modules/home/views/cart_view.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
