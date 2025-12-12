@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../home/views/home_view.dart';
 import '../services/supabase_service.dart';
+import 'ForgotPasswordPage.dart';
 import 'Register.dart';
 import 'dashboard_admin.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -14,14 +16,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
-  bool _isLoading = false;
-
-  final _supabaseService = SupabaseService.instance;
   bool _isLoading = false;
 
   final _supabaseService = SupabaseService.instance;
@@ -202,20 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _resetPassword() async {
-    if (_emailController.text.isEmpty) {
-      _showMessage('Masukkan email Anda terlebih dahulu', isError: true);
-      return;
-    }
-
-    try {
-      await _supabaseService.resetPassword(_emailController.text.trim());
-      _showMessage('Link reset password telah dikirim ke email Anda');
-    } on AuthException catch (e) {
-      _showMessage(e.message, isError: true);
-    }
-  }
-
   void _showMessage(String message, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -340,7 +323,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                            hintText: 'Email',
+                            hintText: 'johndoe@gmail.com',
                             filled: true,
                             fillColor: Colors.grey[50],
                             border: OutlineInputBorder(
@@ -427,7 +410,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: _resetPassword,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ForgotPasswordPage(),
+                                ),
+                              );
+                            },
                             child: const Text(
                               'Forgot password?',
                               style: TextStyle(
@@ -542,9 +532,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
                         const SizedBox(height: 20),
                       ],
                     ),
