@@ -9,7 +9,7 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -19,12 +19,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   void _handleSend() {
     if (_formKey.currentState!.validate()) {
-      // Implementasi logika kirim email reset password
+      // Handle password reset logic here
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Link reset password telah dikirim ke email Anda'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('Password reset link sent to your email')),
       );
     }
   }
@@ -32,7 +29,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2D2D2D),
+      backgroundColor: const Color(0xFF2C2C2C),
       body: SafeArea(
         child: Center(
           child: Container(
@@ -45,15 +42,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header dengan tombol back
-                Container(
+                // Header with back button
+                Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.of(context).pop();
                         },
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -61,42 +58,40 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       const Expanded(
                         child: Text(
                           'Reset password',
-                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(width: 48), // Untuk balance layout
+                      const SizedBox(width: 40), // Balance the back button
                     ],
                   ),
                 ),
 
-                // Konten utama
+                // Content
                 Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Form(
                     key: _formKey,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Deskripsi
+                        const SizedBox(height: 8),
                         const Text(
                           'We will email you',
-                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 14, color: Colors.black87),
+                          textAlign: TextAlign.center,
                         ),
                         const Text(
                           'a link to reset your password.',
-                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 14, color: Colors.black87),
+                          textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 24),
 
-                        // Label Email
+                        // Email label
                         const Text(
                           'Email',
                           style: TextStyle(
@@ -105,25 +100,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             color: Colors.black87,
                           ),
                         ),
-
                         const SizedBox(height: 8),
 
-                        // Input Email
+                        // Email input field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                            hintText: 'example@example.com',
+                            hintText: 'example@example',
                             hintStyle: TextStyle(
                               color: Colors.grey[400],
                               fontSize: 14,
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
                               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -135,38 +125,40 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
                               borderSide: const BorderSide(
-                                color: Color(0xFF6B4D7E),
+                                color: Color(0xFF5E4B8B),
                                 width: 2,
                               ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
                             ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Email tidak boleh kosong';
+                              return 'Please enter your email';
                             }
-                            if (!RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                            ).hasMatch(value)) {
-                              return 'Format email tidak valid';
+                            if (!value.contains('@')) {
+                              return 'Please enter a valid email';
                             }
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 24),
 
-                        // Tombol Send
+                        // Send button
                         SizedBox(
+                          width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
                             onPressed: _handleSend,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6B4D7E),
+                              backgroundColor: const Color(0xFF5E4B8B),
                               foregroundColor: Colors.white,
-                              elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
+                              elevation: 0,
                             ),
                             child: const Text(
                               'Send',
@@ -177,34 +169,42 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 200),
 
-                        // Footer terms
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                        // Footer text
+                        Center(
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              children: const [
+                                TextSpan(
+                                  text:
+                                      'By using Classroom, you agree to the\n',
+                                ),
+                                TextSpan(
+                                  text: 'Terms',
+                                  style: TextStyle(
+                                    color: Color(0xFF5E4B8B),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                                TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: Color(0xFF5E4B8B),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
                             ),
-                            children: const [
-                              TextSpan(
-                                text: 'By using Classroom, you agree to the\n',
-                              ),
-                              TextSpan(
-                                text: 'Terms',
-                                style: TextStyle(color: Color(0xFF6B4D7E)),
-                              ),
-                              TextSpan(text: ' and '),
-                              TextSpan(
-                                text: 'Privacy Policy',
-                                style: TextStyle(color: Color(0xFF6B4D7E)),
-                              ),
-                              TextSpan(text: '.'),
-                            ],
                           ),
                         ),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -214,25 +214,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Contoh cara menggunakan:
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Reset Password',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.purple, fontFamily: 'Roboto'),
-      home: const ResetPasswordScreen(),
     );
   }
 }

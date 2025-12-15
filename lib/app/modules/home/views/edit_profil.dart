@@ -5,7 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
 }
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({Key? key}) : super(key: key);
+  const EditProfilePage({super.key});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -78,10 +78,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             height: 120,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4,
-                              ),
+                              border: Border.all(color: Colors.white, width: 4),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.1),
@@ -257,9 +254,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           TextField(
                             decoration: InputDecoration(
                               hintText: '+62',
-                              hintStyle: TextStyle(
-                                color: Colors.grey.shade500,
-                              ),
+                              hintStyle: TextStyle(color: Colors.grey.shade500),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(

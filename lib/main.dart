@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'app/modules/home/services/supabase_service.dart';
+import 'app/modules/home/views/Splash_Screen.dart';
 import 'app/modules/home/views/home_view.dart';
 import 'app/modules/home/views/profile_view.dart';
-import 'app/modules/home/views/cart_view.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await SupabaseService.initialize();
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
   runApp(const MyApp());
 }
 
@@ -28,7 +34,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
-      home: const HomeView(),
+      home: const SplashScreen(),
     );
   }
 }
