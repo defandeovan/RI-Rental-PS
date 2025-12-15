@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart'; // Import model yang sama
-import 'PaymentView.dart';
-import '../models/RentalDuration.dart';
+import '../theme/app_colors.dart';
+import 'payment_view.dart';
+import '../models/rental_duration.dart';
 
 class BookingView extends StatefulWidget {
   final String productName;
@@ -9,11 +9,11 @@ class BookingView extends StatefulWidget {
   final RentalDuration rentalDuration;
 
   const BookingView({
-    Key? key,
+    super.key,
     required this.productName,
     required this.productImage,
     required this.rentalDuration,
-  }) : super(key: key);
+  });
 
   @override
   State<BookingView> createState() => _BookingViewState();
@@ -129,6 +129,8 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ================== DATE PICKER ==================
+
   Widget _buildDatePicker() {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -161,7 +163,10 @@ class _BookingViewState extends State<BookingView> {
               ),
               Text(
                 '${_selectedDate.month}/${_selectedDate.year}',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -200,7 +205,7 @@ class _BookingViewState extends State<BookingView> {
                   child: Center(
                     child: Text(
                       day,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -251,7 +256,7 @@ class _BookingViewState extends State<BookingView> {
                       color: isSelected
                           ? AppColors.primary
                           : isToday
-                          ? AppColors.primary.withOpacity(0.1)
+                          ? AppColors.primary.withValues(alpha: 0.1)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -305,11 +310,13 @@ class _BookingViewState extends State<BookingView> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
   }
+
+  // ================== PACKAGE SELECTION ==================
 
   Widget _buildPackageSelection() {
     return Padding(
@@ -359,7 +366,7 @@ class _BookingViewState extends State<BookingView> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primary.withOpacity(0.3)
+                  ? AppColors.primary.withValues(alpha: 0.3)
                   : AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 2),
@@ -372,8 +379,8 @@ class _BookingViewState extends State<BookingView> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.2)
-                    : AppColors.primary.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -401,7 +408,7 @@ class _BookingViewState extends State<BookingView> {
                     style: TextStyle(
                       fontSize: 12,
                       color: isSelected
-                          ? Colors.white.withOpacity(0.8)
+                          ? Colors.white.withValues(alpha: 0.8)
                           : AppColors.textSecondary,
                     ),
                   ),
@@ -421,6 +428,8 @@ class _BookingViewState extends State<BookingView> {
       ),
     );
   }
+
+  // ================== TIME SELECTION ==================
 
   Widget _buildTimeSelection() {
     return Padding(
@@ -479,6 +488,8 @@ class _BookingViewState extends State<BookingView> {
       ),
     );
   }
+
+  // ================== DURATION (HOURLY) ==================
 
   Widget _buildDurationSelection() {
     return Padding(
@@ -552,12 +563,16 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ================== BOTTOM BUTTON ==================
+
   Widget _buildBottomButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+        border: const Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,

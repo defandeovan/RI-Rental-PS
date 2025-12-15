@@ -569,6 +569,8 @@ class _BookingViewState extends State<BookingView> {
   // ================== BOTTOM BUTTON ==================
 
   Widget _buildBottomButton() {
+    final total = _calculateTotal();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -593,7 +595,11 @@ class _BookingViewState extends State<BookingView> {
               // TODO: aksi ketika booking dikonfirmasi (tanpa halaman payment)
               // contoh simple:
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Booking dikonfirmasi')),
+                SnackBar(
+                  content: Text(
+                    'Booking dikonfirmasi. Total: ${_formatCurrency(total)}',
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -605,9 +611,9 @@ class _BookingViewState extends State<BookingView> {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'CONFIRM',
-              style: TextStyle(
+            child: Text(
+              'CONFIRM - ${_formatCurrency(total)}',
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
