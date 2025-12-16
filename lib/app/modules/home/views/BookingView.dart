@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart'; // Import model yang sama
-import 'PaymentView.dart';
-import '../models/RentalDuration.dart';
+import '../theme/app_colors.dart';
+import 'payment_view.dart';
+import '../models/rental_duration.dart';
 
+/// BookingView - Halaman untuk booking/sewa PlayStation
+/// Menampilkan kalender, pilihan paket (hourly/daily), jam, dan durasi
 class BookingView extends StatefulWidget {
   final String productName;
   final String productImage;
@@ -20,11 +22,13 @@ class BookingView extends StatefulWidget {
 }
 
 class _BookingViewState extends State<BookingView> {
-  DateTime _selectedDate = DateTime.now();
-  String _selectedPackage = 'hourly';
-  String _selectedTime = '08:00';
-  int _hourlyDuration = 3;
+  // State variables untuk menyimpan pilihan user
+  DateTime _selectedDate = DateTime.now(); // Tanggal booking yang dipilih
+  String _selectedPackage = 'hourly'; // Paket yang dipilih (hourly/daily)
+  String _selectedTime = '08:00'; // Jam mulai booking
+  int _hourlyDuration = 3; // Durasi jam (untuk paket hourly)
 
+  // Daftar paket booking yang tersedia
   final List<PackageOption> _packages = [
     PackageOption(
       id: 'hourly',
@@ -42,6 +46,7 @@ class _BookingViewState extends State<BookingView> {
     ),
   ];
 
+  // Daftar slot waktu yang bisa dipilih user
   final List<String> _timeSlots = [
     '08:00',
     '09:00',
@@ -59,10 +64,18 @@ class _BookingViewState extends State<BookingView> {
     '22:00',
   ];
 
+  /// Format angka ke mata uang Rupiah
+  /// Contoh: 10000 → "Rp 10.000"
   String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    return 'Rp ${amount.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    )}';
   }
 
+  /// Hitung total harga berdasarkan paket yang dipilih
+  /// - Hourly: 10.000 x durasi jam
+  /// - Daily: 200.000 flat
   int _calculateTotal() {
     if (_selectedPackage == 'hourly') {
       return 10000 * _hourlyDuration;
@@ -75,60 +88,70 @@ class _BookingViewState extends State<BookingView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: AppColors.textPrimary,
-        ),
-        title: const Text(
-          'Sewa PS',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
-            color: AppColors.textPrimary,
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share_outlined),
-            color: AppColors.textPrimary,
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
+          // Content area dengan scroll
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDatePicker(),
+                  _buildDatePicker(), // Section pilih tanggal
                   const SizedBox(height: 24),
-                  _buildPackageSelection(),
+                  _buildPackageSelection(), // Section pilih paket
                   const SizedBox(height: 24),
-                  _buildTimeSelection(),
+                  _buildTimeSelection(), // Section pilih jam
                   const SizedBox(height: 24),
+                  // Tampilkan durasi hanya jika paket hourly
                   if (_selectedPackage == 'hourly') _buildDurationSelection(),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 100), // Space untuk bottom button
                 ],
               ),
             ),
           ),
-          _buildBottomButton(),
+          _buildBottomButton(), // Button confirm → navigate ke Payment
         ],
       ),
     );
   }
 
+  /// AppBar dengan tombol back, title, search, dan share
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.cardBackground,
+      elevation: 0,
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        color: AppColors.textPrimary,
+      ),
+      title: const Text(
+        'Sewa PS',
+        style: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {}, // TODO: Implement search
+          icon: const Icon(Icons.search),
+          color: AppColors.textPrimary,
+        ),
+        IconButton(
+          onPressed: () {}, // TODO: Implement share
+          icon: const Icon(Icons.share_outlined),
+          color: AppColors.textPrimary,
+        ),
+      ],
+    );
+  }
+
+  // ==================== DATE PICKER SECTION ====================
+
+  /// Card untuk date picker dengan kalender custom
   Widget _buildDatePicker() {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -148,6 +171,7 @@ class _BookingViewState extends State<BookingView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: Label dan Bulan/Tahun
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -161,19 +185,23 @@ class _BookingViewState extends State<BookingView> {
               ),
               Text(
                 '${_selectedDate.month}/${_selectedDate.year}',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildCalendar(),
+          _buildCalendar(), // Kalender grid
           const SizedBox(height: 16),
-          _buildCalendarLegend(),
+          _buildCalendarLegend(), // Legend status (Full, On Venue, Booking)
         ],
       ),
     );
   }
 
+  /// Generate custom calendar grid untuk bulan yang dipilih
   Widget _buildCalendar() {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(
@@ -187,10 +215,11 @@ class _BookingViewState extends State<BookingView> {
       0,
     );
     final daysInMonth = lastDayOfMonth.day;
-    final startingWeekday = firstDayOfMonth.weekday % 7;
+    final startingWeekday = firstDayOfMonth.weekday % 7; // Hari pertama minggu
 
     return Column(
       children: [
+        // Header hari (Su, Mo, Tu, ...)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -200,7 +229,7 @@ class _BookingViewState extends State<BookingView> {
                   child: Center(
                     child: Text(
                       day,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -212,14 +241,16 @@ class _BookingViewState extends State<BookingView> {
               .toList(),
         ),
         const SizedBox(height: 8),
+        // Generate rows untuk tanggal
         ...List.generate((daysInMonth + startingWeekday) ~/ 7 + 1, (weekIndex) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(7, (dayIndex) {
-                final dayNumber =
-                    weekIndex * 7 + dayIndex - startingWeekday + 1;
+                final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
+                
+                // Jika di luar range bulan, tampilkan space kosong
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
@@ -229,19 +260,19 @@ class _BookingViewState extends State<BookingView> {
                   _selectedDate.month,
                   dayNumber,
                 );
-                final isSelected =
-                    date.day == _selectedDate.day &&
+                
+                // Check apakah tanggal ini dipilih atau hari ini
+                final isSelected = date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
-                final isToday =
-                    date.day == now.day &&
+                final isToday = date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      _selectedDate = date;
+                      _selectedDate = date; // Update tanggal yang dipilih
                     });
                   },
                   child: Container(
@@ -249,10 +280,10 @@ class _BookingViewState extends State<BookingView> {
                     height: 35,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary
+                          ? AppColors.primary // Warna untuk tanggal terpilih
                           : isToday
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.transparent,
+                              ? AppColors.primary.withOpacity(0.1) // Warna untuk hari ini
+                              : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -260,14 +291,12 @@ class _BookingViewState extends State<BookingView> {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? Colors.white
                               : isToday
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -281,6 +310,8 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  /// Legend untuk status kalender (Full, On Venue, Booking)
+  /// Note: Ini placeholder UI, belum ada logika status sesungguhnya
   Widget _buildCalendarLegend() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -294,23 +325,33 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  /// Item legend individual (dot warna + label)
   Widget _buildLegendItem(Color color, String label) {
     return Row(
       children: [
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
         ),
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          style: const TextStyle(
+            fontSize: 11,
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
   }
 
+  // ==================== PACKAGE SELECTION SECTION ====================
+
+  /// Section untuk memilih paket (Hourly / Daily)
   Widget _buildPackageSelection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -326,25 +367,29 @@ class _BookingViewState extends State<BookingView> {
             ),
           ),
           const SizedBox(height: 12),
+          // Map packages ke card components
           ..._packages.map((package) => _buildPackageCard(package)),
         ],
       ),
     );
   }
 
+  /// Card untuk setiap paket booking
+  /// Menampilkan icon, nama, durasi, dan harga
   Widget _buildPackageCard(PackageOption package) {
     final isSelected = _selectedPackage == package.id;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedPackage = package.id;
+          _selectedPackage = package.id; // Update paket yang dipilih
         });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
+          // Gradient untuk paket yang dipilih
           gradient: isSelected
               ? const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
@@ -368,6 +413,7 @@ class _BookingViewState extends State<BookingView> {
         ),
         child: Row(
           children: [
+            // Icon paket
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -383,6 +429,7 @@ class _BookingViewState extends State<BookingView> {
               ),
             ),
             const SizedBox(width: 14),
+            // Nama dan durasi paket
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,6 +455,7 @@ class _BookingViewState extends State<BookingView> {
                 ],
               ),
             ),
+            // Harga paket
             Text(
               _formatCurrency(package.price),
               style: TextStyle(
@@ -422,6 +470,10 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ==================== TIME SELECTION SECTION ====================
+
+  /// Section untuk memilih jam booking
+  /// Tampil sebagai wrap chips dengan jam-jam tersedia
   Widget _buildTimeSelection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -445,7 +497,7 @@ class _BookingViewState extends State<BookingView> {
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    _selectedTime = time;
+                    _selectedTime = time; // Update jam yang dipilih
                   });
                 },
                 child: Container(
@@ -480,6 +532,10 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ==================== DURATION SELECTION (HOURLY) ====================
+
+  /// Section untuk memilih durasi jam (hanya untuk paket hourly)
+  /// User bisa +/- durasi dengan IconButton
   Widget _buildDurationSelection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -512,6 +568,7 @@ class _BookingViewState extends State<BookingView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Label durasi saat ini
                 Text(
                   'Jam (Hour): $_hourlyDuration',
                   style: const TextStyle(
@@ -520,23 +577,24 @@ class _BookingViewState extends State<BookingView> {
                     color: AppColors.textPrimary,
                   ),
                 ),
+                // Tombol - dan +
                 Row(
                   children: [
                     IconButton(
                       onPressed: _hourlyDuration > 1
                           ? () {
                               setState(() {
-                                _hourlyDuration--;
+                                _hourlyDuration--; // Kurangi durasi
                               });
                             }
-                          : null,
+                          : null, // Disable jika sudah 1 jam
                       icon: const Icon(Icons.remove_circle_outline),
                       color: AppColors.primary,
                     ),
                     IconButton(
                       onPressed: () {
                         setState(() {
-                          _hourlyDuration++;
+                          _hourlyDuration++; // Tambah durasi
                         });
                       },
                       icon: const Icon(Icons.add_circle_outline),
@@ -552,12 +610,18 @@ class _BookingViewState extends State<BookingView> {
     );
   }
 
+  // ==================== BOTTOM BUTTON ====================
+
+  /// Button confirm di bottom untuk melanjutkan ke PaymentView
+  /// Mengirim semua data booking yang sudah dipilih user
   Widget _buildBottomButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+        border: const Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowMedium,
@@ -572,6 +636,7 @@ class _BookingViewState extends State<BookingView> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
+              // Navigate ke PaymentView dengan semua data booking
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -612,12 +677,16 @@ class _BookingViewState extends State<BookingView> {
   }
 }
 
+// ==================== PACKAGE OPTION MODEL ====================
+
+/// Model data untuk opsi paket booking
+/// Digunakan untuk render card paket di UI
 class PackageOption {
-  final String id;
-  final String name;
-  final int price;
-  final String duration;
-  final IconData icon;
+  final String id; // Identifier paket (hourly/daily)
+  final String name; // Nama paket yang ditampilkan
+  final int price; // Harga paket
+  final String duration; // Label durasi (Per Hour / Per Day)
+  final IconData icon; // Icon untuk card paket
 
   PackageOption({
     required this.id,
