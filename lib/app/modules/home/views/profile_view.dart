@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/supabase_service.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_colors.dart'; // Import model yang sama
 import 'OrderHistoryScreen.dart';
-import 'login.dart';
+import 'login.dart'; 
 
 class ProfileView extends StatefulWidget {
   const ProfileView({Key? key}) : super(key: key);
