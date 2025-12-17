@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 class MidtransService {
  
 
-// Di dalam class MidtransService, ganti dengan:
+
 static String get _serverKey {
   final key = dotenv.env['MIDTRANS_SERVER_KEY'];
   if (key == null || key.isEmpty) {
