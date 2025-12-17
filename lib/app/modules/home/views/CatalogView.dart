@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Import model yang sama
 import '../theme/app_colors.dart';
 import 'CatalogDetailView.dart';
 
