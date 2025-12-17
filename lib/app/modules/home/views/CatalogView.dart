@@ -13,7 +13,6 @@ class CatalogView extends StatefulWidget {
 
 class _CatalogViewState extends State<CatalogView> {
   String _selectedFilter = 'Semua';
-  final List<bool> _favorites = List.generate(8, (index) => false);
 
   final List<String> _filters = [
     'Semua',
@@ -76,17 +75,21 @@ class _CatalogViewState extends State<CatalogView> {
     ),
   ];
 
+  /// ✅ Favorite pakai Map biar aman walau list di-filter (index grid berubah-ubah)
+  late final Map<String, bool> _favoriteByName;
+
   List<CatalogProduct> get _filteredProducts {
-    if (_selectedFilter == 'Semua') {
-      return _products;
-    }
+    if (_selectedFilter == 'Semua') return _products;
     return _products.where((p) => p.category == _selectedFilter).toList();
   }
 
   @override
   void initState() {
     super.initState();
-    if (widget.category != null) {
+
+    _favoriteByName = {for (final p in _products) p.name: false};
+
+    if (widget.category != null && _filters.contains(widget.category)) {
       _selectedFilter = widget.category!;
     }
   }
@@ -183,12 +186,15 @@ class _CatalogViewState extends State<CatalogView> {
       ),
       itemCount: _filteredProducts.length,
       itemBuilder: (context, index) {
-        return _buildProductCard(_filteredProducts[index], index);
+        final product = _filteredProducts[index];
+        return _buildProductCard(product);
       },
     );
   }
 
-  Widget _buildProductCard(CatalogProduct product, int index) {
+  Widget _buildProductCard(CatalogProduct product) {
+    final isFav = _favoriteByName[product.name] ?? false;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -217,22 +223,18 @@ class _CatalogViewState extends State<CatalogView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Container
             Expanded(
               child: Stack(
                 children: [
                   Container(
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFFF5F3FF),
-                          const Color(0xFFE8E4FF),
-                        ],
+                        colors: [Color(0xFFF5F3FF), Color(0xFFE8E4FF)],
                       ),
-                      borderRadius: const BorderRadius.only(
+                      borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16),
                         topRight: Radius.circular(16),
                       ),
@@ -260,7 +262,7 @@ class _CatalogViewState extends State<CatalogView> {
                       ),
                     ),
                   ),
-                  // Discount Badge
+
                   if (product.discount != null)
                     Positioned(
                       top: 8,
@@ -284,14 +286,14 @@ class _CatalogViewState extends State<CatalogView> {
                         ),
                       ),
                     ),
-                  // Favorite Button
+
                   Positioned(
                     top: 8,
                     right: 8,
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          _favorites[index] = !_favorites[index];
+                          _favoriteByName[product.name] = !isFav;
                         });
                       },
                       child: Container(
@@ -307,10 +309,8 @@ class _CatalogViewState extends State<CatalogView> {
                           ],
                         ),
                         child: Icon(
-                          _favorites[index]
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: _favorites[index] ? Colors.red : Colors.grey,
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : Colors.grey,
                           size: 18,
                         ),
                       ),
@@ -319,7 +319,7 @@ class _CatalogViewState extends State<CatalogView> {
                 ],
               ),
             ),
-            // Product Info
+
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -425,6 +425,7 @@ class _CatalogViewState extends State<CatalogView> {
               itemBuilder: (context, index) {
                 final filter = _filters[index];
                 final isSelected = _selectedFilter == filter;
+
                 return InkWell(
                   onTap: () {
                     setState(() {
