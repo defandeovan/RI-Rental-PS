@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import 'payment_view.dart';
-import '../models/rental_duration.dart';
+import 'PaymentView.dart';
+import '../models/RentalDuration.dart';
 
 /// BookingView - Halaman untuk booking/sewa PlayStation
 /// Menampilkan kalender, pilihan paket (hourly/daily), jam, dan durasi
@@ -67,10 +67,7 @@ class _BookingViewState extends State<BookingView> {
   /// Format angka ke mata uang Rupiah
   /// Contoh: 10000 → "Rp 10.000"
   String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    )}';
+    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
   }
 
   /// Hitung total harga berdasarkan paket yang dipilih
@@ -248,8 +245,9 @@ class _BookingViewState extends State<BookingView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(7, (dayIndex) {
-                final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
-                
+                final dayNumber =
+                    weekIndex * 7 + dayIndex - startingWeekday + 1;
+
                 // Jika di luar range bulan, tampilkan space kosong
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
@@ -260,12 +258,14 @@ class _BookingViewState extends State<BookingView> {
                   _selectedDate.month,
                   dayNumber,
                 );
-                
+
                 // Check apakah tanggal ini dipilih atau hari ini
-                final isSelected = date.day == _selectedDate.day &&
+                final isSelected =
+                    date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
-                final isToday = date.day == now.day &&
+                final isToday =
+                    date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -280,10 +280,13 @@ class _BookingViewState extends State<BookingView> {
                     height: 35,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary // Warna untuk tanggal terpilih
+                          ? AppColors
+                                .primary // Warna untuk tanggal terpilih
                           : isToday
-                              ? AppColors.primary.withOpacity(0.1) // Warna untuk hari ini
-                              : Colors.transparent,
+                          ? AppColors.primary.withOpacity(
+                              0.1,
+                            ) // Warna untuk hari ini
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -291,12 +294,14 @@ class _BookingViewState extends State<BookingView> {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: isSelected
                               ? Colors.white
                               : isToday
-                                  ? AppColors.primary
-                                  : AppColors.textPrimary,
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -332,18 +337,12 @@ class _BookingViewState extends State<BookingView> {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
