@@ -2,7 +2,7 @@ import 'package:flutter/material.dart'; // Import model yang sama
 import '../theme/app_colors.dart';
 import 'CatalogDetailView.dart';
 
-
+/// VIEW KATALOG PRODUK PLAYSTATION
 class CatalogView extends StatefulWidget {
   final String? category;
 
