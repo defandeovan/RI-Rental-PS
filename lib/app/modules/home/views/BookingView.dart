@@ -3,7 +3,7 @@ import '../theme/app_colors.dart';// Import model yang sama
 import 'PaymentView.dart';
 import '../models/RentalDuration.dart';
 
-/// BookingView - Halaman untuk booking/sewa PlayStation
+/// BookingView - Halaman untuk booking/sewa playStation
 class BookingView extends StatefulWidget {
   final String productName;
   final String productImage;
