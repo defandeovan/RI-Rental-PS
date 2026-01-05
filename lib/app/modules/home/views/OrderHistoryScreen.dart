@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../services/supabase_service.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({Key? key}) : super(key: key);
@@ -9,49 +10,31 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
-  // Dummy data untuk contoh
-  final List<Map<String, dynamic>> _orders = [
-    {
-      'id': 'ORD001',
-      'title': 'PS5 Digital Edition',
-      'date': '15 Nov 2024',
-      'status': 'Selesai',
-      'statusColor': Colors.green,
-      'duration': '3 hari',
-      'price': 'Rp 450.000',
-      'image': 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400',
-    },
-    {
-      'id': 'ORD002',
-      'title': 'PS5 Digital Edition',
-      'date': '12 Nov 2024',
-      'status': 'Dalam Proses',
-      'statusColor': Colors.orange,
-      'duration': '2 hari',
-      'price': 'Rp 300.000',
-      'image': 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400',
-    },
-    {
-      'id': 'ORD003',
-      'title': 'PlayStation 4 Pro',
-      'date': '8 Nov 2024',
-      'status': 'Selesai',
-      'statusColor': Colors.green,
-      'duration': '5 hari',
-      'price': 'Rp 600.000',
-      'image': 'https://images.unsplash.com/photo-1486401899868-0e435ed85128?w=400',
-    },
-    {
-      'id': 'ORD004',
-      'title': 'PS5 Standard Edition',
-      'date': '1 Nov 2024',
-      'status': 'Dibatalkan',
-      'statusColor': Colors.red,
-      'duration': '4 hari',
-      'price': 'Rp 500.000',
-      'image': 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400',
-    },
-  ];
+  final _supabaseService = SupabaseService.instance;
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _orders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    setState(() => _isLoading = true);
+    final userId = _supabaseService.userId;
+    if (userId != null) {
+        final data = await _supabaseService.getOrders(userId);
+        if (mounted) {
+            setState(() {
+                _orders = data;
+                _isLoading = false;
+            });
+        }
+    } else {
+        if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   String _selectedFilter = 'Semua';
   final List<String> _filters = ['Semua', 'Dalam Proses', 'Selesai', 'Dibatalkan'];
@@ -61,6 +44,20 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       return _orders;
     }
     return _orders.where((order) => order['status'] == _selectedFilter).toList();
+  }
+  
+  Color _getStatusColor(String status) {
+      switch (status) {
+          case 'Selesai': return Colors.green;
+          case 'Dalam Proses': return Colors.orange;
+          case 'Dibatalkan': return Colors.red;
+          case 'Pending': return Colors.orange;
+          default: return Colors.grey;
+      }
+  }
+  
+  String _formatCurrency(int amount) {
+    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
   }
 
   @override
@@ -131,9 +128,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
           // Order List
           Expanded(
-            child: _filteredOrders.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
+            child: _isLoading 
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                : _filteredOrders.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _filteredOrders.length,
               itemBuilder: (context, index) {
@@ -148,6 +147,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
+    final statusColor = _getStatusColor(order['status']);
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -177,8 +178,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 // Product Image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    order['image'],
+                  child: Image.asset( // Changed to asset for now as we store asset paths
+                    order['product_image'] ?? 'assets/images/ps5_digital.png',
                     width: 70,
                     height: 70,
                     fit: BoxFit.cover,
@@ -187,7 +188,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                         width: 70,
                         height: 70,
                         color: Colors.grey[200],
-                        child: Icon(Icons.image, color: Colors.grey[400]),
+                        child: Icon(Icons.videogame_asset, color: Colors.grey[400]),
                       );
                     },
                   ),
@@ -201,7 +202,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        order['title'],
+                        order['product_name'] ?? 'Uknown Product',
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -219,7 +220,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: order['statusColor'].withOpacity(0.1),
+                              color: statusColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -227,7 +228,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: order['statusColor'],
+                                color: statusColor,
                               ),
                             ),
                           ),
@@ -235,7 +236,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        order['date'],
+                        _formatDate(DateTime.parse(order['order_date'])),
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -257,6 +258,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         ),
       ),
     );
+  }
+  
+  String _formatDate(DateTime date) {
+      return '${date.day}/${date.month}/${date.year}';
   }
 
   Widget _buildEmptyState() {
@@ -292,6 +297,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
   void _showOrderDetail(Map<String, dynamic> order) {
+    final statusColor = _getStatusColor(order['status']);
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -352,11 +359,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            order['image'],
+                          child: Image.asset(
+                            order['product_image'] ?? 'assets/images/ps5_digital.png',
                             width: 90,
                             height: 90,
                             fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => Container(color: Colors.grey[200], width: 90, height: 90),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -365,7 +373,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                order['title'],
+                                order['product_name'] ?? '',
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
@@ -374,7 +382,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Durasi: ${order['duration']}',
+                                'Durasi: ${order['rental_duration']}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -392,10 +400,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
                     // Order Details
                     _buildDetailRow('ID Pesanan', order['id']),
-                    _buildDetailRow('Tanggal', order['date']),
+                    _buildDetailRow('Tanggal', _formatDate(DateTime.parse(order['order_date']))),
                     _buildDetailRow('Status', order['status'],
-                        valueColor: order['statusColor']),
-                    _buildDetailRow('Total Pembayaran', order['price'],
+                        valueColor: statusColor),
+                    _buildDetailRow('Total Pembayaran', _formatCurrency(order['total_price']),
                         valueStyle: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

@@ -1,47 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
+import '../models/voucher_model.dart';
+import '../services/supabase_service.dart';
 
 class VoucherView extends StatefulWidget {
-  const VoucherView({Key? key}) : super(key: key);
+  final bool isSelectionMode;
+  const VoucherView({Key? key, this.isSelectionMode = false}) : super(key: key);
 
   @override
   State<VoucherView> createState() => _VoucherViewState();
 }
 
 class _VoucherViewState extends State<VoucherView> {
-  final List<VoucherData> _vouchers = [
-    VoucherData(
-      code: 'RENTPS50',
-      discount: '50%',
-      description: 'Diskon 50% sewa PS5',
-      validUntil: '31 Des 2024',
-    ),
-    VoucherData(
-      code: 'GAME30',
-      discount: '30%',
-      description: 'Diskon 30% rental game',
-      validUntil: '25 Des 2024',
-    ),
-    VoucherData(
-      code: 'NEWUSER',
-      discount: 'FREE',
-      description: 'Gratis ongkir user baru',
-      validUntil: '31 Jan 2025',
-    ),
-    VoucherData(
-      code: 'WEEKEND25',
-      discount: '25%',
-      description: 'Diskon weekend special',
-      validUntil: '31 Des 2024',
-    ),
-  ];
+  final _supabaseService = SupabaseService.instance;
+  bool _isLoading = true;
+  List<VoucherModel> _vouchers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVouchers();
+  }
+
+  Future<void> _loadVouchers() async {
+      setState(() => _isLoading = true);
+      
+      try {
+          final data = await _supabaseService.getVouchers();
+          if (mounted) {
+              setState(() {
+                  _vouchers = data.map((e) => VoucherModel.fromJson(e)).toList();
+                  _isLoading = false;
+              });
+          }
+      } catch (e) {
+          print('Error loading vouchers: $e');
+          if (mounted) {
+              setState(() => _isLoading = false);
+          }
+      }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return widget.isSelectionMode ? Scaffold(
+        appBar: AppBar(
+            title: const Text('Pilih Voucher'),
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.textPrimary,
+            elevation: 0,
+        ),
+        body: _buildBody(),
+    ) : _buildBody();
+  }
+
+  Widget _buildBody() {
+      if (_isLoading) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      }
+
+      return Column(
       children: [
-        _buildHeader(),
+        if (!widget.isSelectionMode) _buildHeader(),
         Expanded(
           child: _vouchers.isEmpty
               ? _buildEmptyState()
@@ -92,8 +113,14 @@ class _VoucherViewState extends State<VoucherView> {
     );
   }
 
-  Widget _buildVoucherCard(VoucherData voucher) {
-    return Container(
+  Widget _buildVoucherCard(VoucherModel voucher) {
+    return GestureDetector(
+      onTap: () {
+          if (widget.isSelectionMode) {
+              Navigator.pop(context, voucher);
+          }
+      },
+      child: Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -123,10 +150,10 @@ class _VoucherViewState extends State<VoucherView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  voucher.discount,
+                  '${voucher.discountPercent}%',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 24, // Changed slightly to fit
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -169,7 +196,7 @@ class _VoucherViewState extends State<VoucherView> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Valid until ${voucher.validUntil}',
+                        'Valid until ${_formatDate(voucher.validUntil)}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
@@ -235,7 +262,12 @@ class _VoucherViewState extends State<VoucherView> {
           ),
         ],
       ),
+      ),
     );
+  }
+  
+  String _formatDate(DateTime date) {
+      return '${date.day}/${date.month}/${date.year}';
   }
 
   Widget _buildEmptyState() {
@@ -276,18 +308,4 @@ class _VoucherViewState extends State<VoucherView> {
       ),
     );
   }
-}
-
-class VoucherData {
-  final String code;
-  final String discount;
-  final String description;
-  final String validUntil;
-
-  VoucherData({
-    required this.code,
-    required this.discount,
-    required this.description,
-    required this.validUntil,
-  });
 }

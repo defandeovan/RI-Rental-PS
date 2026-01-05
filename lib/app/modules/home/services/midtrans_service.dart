@@ -1,23 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
- import 'package:flutter_dotenv/flutter_dotenv.dart'; 
+
 class MidtransService {
  
 
+static String get _serverKey => 'SB-Mid-server-s8G899IlsKSK-CliYZ7XHzKO';
 
-static String get _serverKey {
-  final key = dotenv.env['MIDTRANS_SERVER_KEY'];
-  if (key == null || key.isEmpty) {
-    throw Exception('MIDTRANS_SERVER_KEY not found in .env file');
-  }
-  return key;
-}
-
-static bool get _isProduction {
-  final isProd = dotenv.env['MIDTRANS_IS_PRODUCTION'];
-  return isProd?.toLowerCase() == 'true';
-}
+static bool get _isProduction => false;
   // Base URLs
   static String get _baseUrl => _isProduction
       ? 'https://api.midtrans.com/v2'
@@ -41,75 +31,8 @@ static bool get _isProduction {
       // Encode Server Key untuk Basic Auth
       final auth = base64Encode(utf8.encode('$_serverKey:'));
 
-      // List enabled payments berdasarkan payment type yang dipilih
-      List<String> enabledPayments = [];
-
-      if (paymentType != null) {
-        // Jika spesifik payment type dipilih
-        switch (paymentType) {
-          case 'gopay':
-            enabledPayments = ['gopay'];
-            break;
-          case 'dana':
-            enabledPayments = ['shopeepay']; // Midtrans uses shopeepay for DANA
-            break;
-          case 'shopeepay':
-            enabledPayments = ['shopeepay'];
-            break;
-          case 'qris':
-            enabledPayments = ['qris'];
-            break;
-          case 'bca_va':
-            enabledPayments = ['bca_va'];
-            break;
-          case 'bni_va':
-            enabledPayments = ['bni_va'];
-            break;
-          case 'bri_va':
-            enabledPayments = ['bri_va'];
-            break;
-          case 'echannel': // Mandiri
-            enabledPayments = ['echannel'];
-            break;
-          case 'permata_va':
-            enabledPayments = ['permata_va'];
-            break;
-          case 'credit_card':
-            enabledPayments = ['credit_card'];
-            break;
-          case 'cstore':
-            enabledPayments = ['cstore'];
-            break;
-          default:
-          // Jika tidak dikenali, enable semua
-            enabledPayments = [
-              'gopay',
-              'shopeepay',
-              'qris',
-              'bca_va',
-              'bni_va',
-              'bri_va',
-              'permata_va',
-              'echannel',
-              'credit_card',
-              'cstore',
-            ];
-        }
-      } else {
-        // Jika tidak ada payment type, enable semua
-        enabledPayments = [
-          'gopay',
-          'shopeepay',
-          'qris',
-          'bca_va',
-          'bni_va',
-          'bri_va',
-          'permata_va',
-          'echannel',
-          'credit_card',
-          'cstore',
-        ];
-      }
+      // Enabled payments restriction removed to show all available methods
+      // specified in the Midtrans Dashboard.
 
       final body = {
         'transaction_details': {
@@ -118,7 +41,6 @@ static bool get _isProduction {
         },
         'customer_details': customerDetails,
         'item_details': itemDetails,
-        'enabled_payments': enabledPayments,
       };
 
       print('Creating transaction with body: ${jsonEncode(body)}');

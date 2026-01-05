@@ -29,7 +29,7 @@ dependencies:
   http: ^1.1.0           # Untuk API calls
   webview_flutter: ^4.4.2 # Untuk payment page
   crypto: ^3.0.3
-  flutter_dotenv: ^5.1.0
+  url_launcher: ^6.3.2
   
 
 dev_dependencies:

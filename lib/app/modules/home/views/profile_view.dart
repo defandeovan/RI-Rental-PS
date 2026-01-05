@@ -38,13 +38,21 @@ class _ProfileViewState extends State<ProfileView> {
 
     try {
       final userId = _supabaseService.userId;
+      final email = _supabaseService.userEmail;
+      
+      // Default to auth data
+      setState(() {
+          _userEmail = email ?? '';
+          _userName = email?.split('@')[0] ?? 'User'; // Fallback name
+      });
+
       if (userId != null) {
         final profile = await _supabaseService.getProfile(userId);
 
         if (profile != null) {
           setState(() {
-            _userName = profile['name'] ?? '';
-            _userEmail = profile['email'] ?? '';
+            _userName = profile['name'] ?? _userName;
+            _userEmail = profile['email'] ?? _userEmail;
             _userPhone = profile['phone'] ?? '';
             _currentImageUrl = profile['profile_image_url'];
             _userGender = profile['gender'] ?? '';

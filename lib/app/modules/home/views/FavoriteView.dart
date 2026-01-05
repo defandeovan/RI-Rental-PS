@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../models/product_model.dart';
+import '../services/supabase_service.dart';
 import 'CatalogDetailView.dart';
 
 class FavoriteView extends StatefulWidget {
@@ -11,62 +13,82 @@ class FavoriteView extends StatefulWidget {
 
 class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  final List<FavoriteProduct> _favoriteConsoles = [
-    FavoriteProduct(
-      name: 'PS5 Digital Edition',
-      price: 'Rp 50K/hari',
-      image: 'assets/images/ps5_digital.png',
-      category: 'PS 5',
-      rating: 4.8,
-    ),
-    FavoriteProduct(
-      name: 'Playstation 4',
-      price: 'Rp 45K/hari',
-      image: 'assets/images/ps4_console.png',
-      category: 'PS 4',
-      rating: 4.5,
-    ),
-    FavoriteProduct(
-      name: 'PS4 Slim',
-      price: 'Rp 40K/hari',
-      image: 'assets/images/ps4_slim.png',
-      category: 'PS 4',
-      rating: 4.6,
-    ),
-  ];
-
-  final List<FavoriteProduct> _favoriteGames = [
-    FavoriteProduct(
-      name: 'God of War Ragnarok',
-      price: 'Rp 10K/hari',
-      image: 'assets/images/disc.png',
-      category: 'KASET',
-      rating: 4.9,
-    ),
-    FavoriteProduct(
-      name: 'Spider-Man 2',
-      price: 'Rp 12K/hari',
-      image: 'assets/images/disc.png',
-      category: 'KASET',
-      rating: 4.8,
-    ),
-  ];
+  final _supabaseService = SupabaseService.instance;
+  bool _isLoading = true;
+  List<Product> _favoriteConsoles = [];
+  List<Product> _favoriteGames = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadFavorites();
+    _supabaseService.favoritesNotifier.addListener(_onFavoritesChanged);
+  }
+
+  void _onFavoritesChanged() {
+    _loadFavorites();
   }
 
   @override
   void dispose() {
+    _supabaseService.favoritesNotifier.removeListener(_onFavoritesChanged);
     _tabController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadFavorites() async {
+    setState(() => _isLoading = true);
+    final userId = _supabaseService.userId;
+    
+    if (userId != null) {
+        final favoriteIds = await _supabaseService.getFavorites(userId);
+        
+        final allFavs = Product.allProducts.where((p) => favoriteIds.contains(p.id)).toList();
+        
+        _favoriteConsoles = allFavs.where((p) => !p.category.toUpperCase().contains('KASET')).toList();
+        _favoriteGames = allFavs.where((p) => p.category.toUpperCase().contains('KASET')).toList();
+    }
+    
+    if (mounted) {
+        setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _removeFavorite(Product product) async {
+      final userId = _supabaseService.userId;
+      if (userId == null) return;
+
+      final isAdded = await _supabaseService.toggleFavorite(userId, product.id); 
+      
+      if (!isAdded) { // If false, means it was removed from DB
+          setState(() {
+              if (product.category.toUpperCase().contains('KASET')) {
+                  _favoriteGames.remove(product);
+              } else {
+                  _favoriteConsoles.remove(product);
+              }
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Removed from favorites'),
+              backgroundColor: AppColors.primary,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+      }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+        return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+    }
+
     return Column(
       children: [
         _buildHeader(),
@@ -151,7 +173,7 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildFavoriteList(List<FavoriteProduct> products) {
+  Widget _buildFavoriteList(List<Product> products) {
     if (products.isEmpty) {
       return _buildEmptyState();
     }
@@ -165,7 +187,7 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildFavoriteCard(FavoriteProduct product) {
+  Widget _buildFavoriteCard(Product product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -185,12 +207,10 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
             context,
             MaterialPageRoute(
               builder: (context) => CatalogDetailView(
-                productName: product.name,
-                productImage: product.image,
-                productPrice: product.price,
+                productId: product.id,
               ),
             ),
-          );
+          ).then((_) => _loadFavorites()); // Reload when returning
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
@@ -277,7 +297,7 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      product.price,
+                      'Rp ${product.price}/hari',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -291,26 +311,7 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () {
-                      setState(() {
-                        if (product.category == 'KASET') {
-                          _favoriteGames.remove(product);
-                        } else {
-                          _favoriteConsoles.remove(product);
-                        }
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Removed from favorites'),
-                          backgroundColor: AppColors.primary,
-                          duration: const Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () => _removeFavorite(product),
                     icon: const Icon(Icons.favorite),
                     color: Colors.red,
                     iconSize: 24,
@@ -375,20 +376,4 @@ class _FavoriteViewState extends State<FavoriteView> with SingleTickerProviderSt
       ),
     );
   }
-}
-
-class FavoriteProduct {
-  final String name;
-  final String price;
-  final String image;
-  final String category;
-  final double rating;
-
-  FavoriteProduct({
-    required this.name,
-    required this.price,
-    required this.image,
-    required this.category,
-    required this.rating,
-  });
 }

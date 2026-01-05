@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../theme/app_colors.dart';
 import 'CatalogDetailView.dart';
 import 'CatalogView.dart';
 import 'search_view.dart';
 import 'notification_view.dart';
+import '../models/product_model.dart';
+import '../services/supabase_service.dart';
 
 
 class HomeContent extends StatefulWidget {
@@ -16,24 +19,94 @@ class HomeContent extends StatefulWidget {
 class _HomeContentState extends State<HomeContent> {
   int _currentBannerIndex = 0;
   final PageController _bannerController = PageController();
-  final List<bool> _favorites = [false, false, false, false];
+  final _supabaseService = SupabaseService.instance;
+  String _userName = 'Guest';
+  List<String> _favoriteIds = [];
+
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+    _loadUserData();
+    _loadFavorites();
+    _supabaseService.favoritesNotifier.addListener(_onFavoritesChanged);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _bannerController.dispose();
+    _supabaseService.favoritesNotifier.removeListener(_onFavoritesChanged);
+    super.dispose();
+  }
+
+  void _onFavoritesChanged() {
+    _loadFavorites();
+  }
+
+  Future<void> _loadUserData() async {
+    final userId = _supabaseService.userId;
+    if (userId != null) {
+      final profile = await _supabaseService.getProfile(userId);
+      if (mounted) {
+        setState(() {
+          _userName = profile?['name'] ?? _supabaseService.userEmail?.split('@')[0] ?? 'User';
+        });
+      }
+    }
+  }
+
+  Future<void> _loadFavorites() async {
+    final userId = _supabaseService.userId;
+    if (userId != null) {
+      final favorites = await _supabaseService.getFavorites(userId);
+      if (mounted) {
+        setState(() {
+          _favoriteIds = favorites;
+        });
+      }
+    }
+  }
+
+  void _startAutoScroll() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_currentBannerIndex < _banners.length - 1) {
+        _currentBannerIndex++;
+      } else {
+        _currentBannerIndex = 0;
+      }
+
+      if (_bannerController.hasClients) {
+        _bannerController.animateToPage(
+          _currentBannerIndex,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   // Data banner promo
   final List<BannerData> _banners = [
     BannerData(
       title: '20% OFF',
-      subtitle: 'on gaming accessories',
+      subtitle: 'Diskon spesial untuk\nsemua aksesoris gaming',
       image: 'assets/images/controller.png',
+      gradient: [const Color(0xFF6B4C7D), const Color(0xFF9B6FB0)],
     ),
     BannerData(
       title: '30% OFF',
-      subtitle: 'on PS5 console',
+      subtitle: 'Promo akhir tahun\nuntuk PS5 Console',
       image: 'assets/images/controller.png',
+      gradient: [const Color(0xFF2196F3), const Color(0xFF64B5F6)],
     ),
     BannerData(
-      title: '15% OFF',
-      subtitle: 'on game discs',
+      title: 'FREE',
+      subtitle: 'Gratis 1 hari sewa\nuntuk member baru',
       image: 'assets/images/controller.png',
+      gradient: [const Color(0xFFFF9800), const Color(0xFFFFB74D)],
     ),
   ];
 
@@ -47,34 +120,9 @@ class _HomeContentState extends State<HomeContent> {
   ];
 
   // Data produk
-  final List<ProductData> _products = [
-    ProductData(
-      name: 'PS5 Digital Edition',
-      price: 'Rp 50K/hari',
-      image: 'assets/images/ps5_digital.png',
-    ),
-    ProductData(
-      name: 'Playstation 4',
-      price: 'Rp 45K/hari',
-      image: 'assets/images/ps4_console.png',
-    ),
-    ProductData(
-      name: 'PS4 Slim',
-      price: 'Rp 40K/hari',
-      image: 'assets/images/ps4_slim.png',
-    ),
-    ProductData(
-      name: 'PS4 Pro',
-      price: 'Rp 50K/hari',
-      image: 'assets/images/ps4_pro.png',
-    ),
-  ];
+  final List<Product> _products = Product.allProducts.take(4).toList();
 
-  @override
-  void dispose() {
-    _bannerController.dispose();
-    super.dispose();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -125,22 +173,7 @@ class _HomeContentState extends State<HomeContent> {
           ),
           Row(
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SearchView(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.search),
-                iconSize: 26,
-                color: AppColors.textPrimary,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 20),
+
               Stack(
                 children: [
                   IconButton(
@@ -192,35 +225,71 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget _buildGreeting() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Hello,',
             style: TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
-            'jonh',
-            style: TextStyle(
+            _userName,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(height: 16),
+          _buildSearchBar(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SearchView(),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: Colors.grey),
+            const SizedBox(width: 12),
+            Text(
+              'Cari console atau aksesoris...',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBannerCarousel() {
     return SizedBox(
-      height: 170,
+      height: 190,
       child: PageView.builder(
         controller: _bannerController,
         onPageChanged: (index) {
@@ -242,13 +311,10 @@ class _HomeContentState extends State<HomeContent> {
   Widget _buildBannerItem(BannerData banner) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
-          ],
+          colors: banner.gradient,
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -492,16 +558,14 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-  Widget _buildProductCard(ProductData product, int index) {
+  Widget _buildProductCard(Product product, int index) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CatalogDetailView(
-              productName: product.name,
-              productImage: product.image,
-              productPrice: product.price,
+              productId: product.id,
             ),
           ),
         );
@@ -561,10 +625,17 @@ class _HomeContentState extends State<HomeContent> {
                     top: 8,
                     right: 8,
                     child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _favorites[index] = !_favorites[index];
-                        });
+                      onTap: () async {
+                        final userId = _supabaseService.userId;
+                        if (userId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Silakan login terlebih dahulu')),
+                          );
+                          return;
+                        }
+                         // Toggle favorite directly
+                        await _supabaseService.toggleFavorite(userId, product.id);
+                        // UI update handled by listener
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
@@ -579,8 +650,8 @@ class _HomeContentState extends State<HomeContent> {
                           ],
                         ),
                         child: Icon(
-                          _favorites[index] ? Icons.favorite : Icons.favorite_border,
-                          color: _favorites[index] ? Colors.red : Colors.grey,
+                          _favoriteIds.contains(product.id) ? Icons.favorite : Icons.favorite_border,
+                          color: _favoriteIds.contains(product.id) ? Colors.red : Colors.grey,
                           size: 18,
                         ),
                       ),
@@ -611,7 +682,7 @@ class _HomeContentState extends State<HomeContent> {
                     children: [
                       Expanded(
                         child: Text(
-                          product.price,
+                          'Rp ${product.price}/hari',
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -641,11 +712,13 @@ class BannerData {
   final String title;
   final String subtitle;
   final String image;
+  final List<Color> gradient;
 
   BannerData({
     required this.title,
     required this.subtitle,
     required this.image,
+    required this.gradient,
   });
 }
 
@@ -659,14 +732,3 @@ class CategoryData {
   });
 }
 
-class ProductData {
-  final String name;
-  final String price;
-  final String image;
-
-  ProductData({
-    required this.name,
-    required this.price,
-    required this.image,
-  });
-}
