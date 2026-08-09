@@ -44,8 +44,20 @@ class _BookingViewState extends State<BookingView> {
   ];
 
   final List<String> _timeSlots = [
-    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
-    '14:00', '15:00', '16:00', '17:00', '18:00', '20:00', '21:00', '22:00',
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+    '20:00',
+    '21:00',
+    '22:00',
   ];
 
   String _formatCurrency(int amount) {
@@ -139,7 +151,7 @@ class _BookingViewState extends State<BookingView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildDatePicker(),
                   const SizedBox(height: 24),
                   _buildPackageSelection(),
@@ -188,7 +200,10 @@ class _BookingViewState extends State<BookingView> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -217,8 +232,16 @@ class _BookingViewState extends State<BookingView> {
 
   Widget _buildCalendar() {
     final now = DateTime.now();
-    final firstDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
-    final lastDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+    final firstDayOfMonth = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      1,
+    );
+    final lastDayOfMonth = DateTime(
+      _selectedDate.year,
+      _selectedDate.month + 1,
+      0,
+    );
     final daysInMonth = lastDayOfMonth.day;
     final startingWeekday = firstDayOfMonth.weekday % 7;
 
@@ -227,19 +250,21 @@ class _BookingViewState extends State<BookingView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
-              .map((day) => SizedBox(
-            width: 35,
-            child: Center(
-              child: Text(
-                day,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+              .map(
+                (day) => SizedBox(
+                  width: 35,
+                  child: Center(
+                    child: Text(
+                      day,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ))
+              )
               .toList(),
         ),
         const SizedBox(height: 12),
@@ -249,16 +274,23 @@ class _BookingViewState extends State<BookingView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (dayIndex) {
-                final dayNumber = weekIndex * 7 + dayIndex - startingWeekday + 1;
+                final dayNumber =
+                    weekIndex * 7 + dayIndex - startingWeekday + 1;
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox(width: 35, height: 35);
                 }
 
-                final date = DateTime(_selectedDate.year, _selectedDate.month, dayNumber);
-                final isSelected = date.day == _selectedDate.day &&
+                final date = DateTime(
+                  _selectedDate.year,
+                  _selectedDate.month,
+                  dayNumber,
+                );
+                final isSelected =
+                    date.day == _selectedDate.day &&
                     date.month == _selectedDate.month &&
                     date.year == _selectedDate.year;
-                final isToday = date.day == now.day &&
+                final isToday =
+                    date.day == now.day &&
                     date.month == now.month &&
                     date.year == now.year;
 
@@ -281,12 +313,12 @@ class _BookingViewState extends State<BookingView> {
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: isSelected
                           ? [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        )
-                      ]
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
                           : null,
                     ),
                     child: Center(
@@ -294,7 +326,9 @@ class _BookingViewState extends State<BookingView> {
                         '$dayNumber',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                           color: isSelected
                               ? Colors.white
                               : isToday
@@ -463,7 +497,9 @@ class _BookingViewState extends State<BookingView> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white.withOpacity(0.9) : AppColors.warning,
+                      color: isSelected
+                          ? Colors.white.withOpacity(0.9)
+                          : AppColors.warning,
                     ),
                   ),
               ],
@@ -502,7 +538,10 @@ class _BookingViewState extends State<BookingView> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary : Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -597,11 +636,7 @@ class _BookingViewState extends State<BookingView> {
                             ? () => setState(() => _hourlyDuration--)
                             : null,
                       ),
-                      Container(
-                        height: 24,
-                        width: 1,
-                        color: Colors.grey[300],
-                      ),
+                      Container(height: 24, width: 1, color: Colors.grey[300]),
                       _buildDurationButton(
                         icon: Icons.add_rounded,
                         onTap: () => setState(() => _hourlyDuration++),
@@ -696,9 +731,11 @@ class _BookingViewState extends State<BookingView> {
                           productName: widget.productName,
                           productImage: widget.productImage,
                           rentalDuration: RentalDuration(
-                            days: _selectedPackage == 'hourly' ? 0 : 1, // 0 for hourly? logic needs check but fitting object requirements
-                            label: _selectedPackage == 'hourly' 
-                                ? '$_hourlyDuration Jam' 
+                            days: _selectedPackage == 'hourly'
+                                ? 0
+                                : 1, // 0 for hourly? logic needs check but fitting object requirements
+                            label: _selectedPackage == 'hourly'
+                                ? '$_hourlyDuration Jam'
                                 : '1 Hari', // Simplified daily logic
                             price: _calculateTotal(),
                           ),
