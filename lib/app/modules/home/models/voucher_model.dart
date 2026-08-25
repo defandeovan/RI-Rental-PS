@@ -1,4 +1,3 @@
-
 class VoucherModel {
   final dynamic id;
   final String code;
@@ -14,6 +13,7 @@ class VoucherModel {
     required this.validUntil,
   });
 
+  // Mengubah JSON menjadi object VoucherModel
   factory VoucherModel.fromJson(Map<String, dynamic> json) {
     return VoucherModel(
       id: json['id'],
@@ -24,6 +24,7 @@ class VoucherModel {
     );
   }
 
+  // Mengubah object VoucherModel menjadi JSON
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
@@ -50,4 +51,3 @@ class VoucherModel {
     return totalPrice - discount;
   }
 }
-

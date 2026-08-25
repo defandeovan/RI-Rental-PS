@@ -45,6 +45,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
     _loadProduct();
     _checkFavoriteStatus();
   }
+  
 
   void _loadProduct() {
       // Find product by ID
