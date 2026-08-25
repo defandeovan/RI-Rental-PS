@@ -273,7 +273,7 @@ class _CatalogDetailViewState extends State<CatalogDetailView> {
         ],
       ),
     );
-  }
+  };
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
